@@ -23,8 +23,7 @@ export default async () => {
     useUnifiedTopology: true // path deprecation
   })
 
-  // remove database (debug)
-  await conn.connection.db.dropDatabase()
+  return conn
 }
 
 export const Account = mongoose.model('Account', account)
