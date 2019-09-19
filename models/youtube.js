@@ -30,6 +30,10 @@ export default new Schema(
       // 通常サムネ
       type: String
     },
+    playlist: {
+      // 動画プレイリスト
+      type: String
+    },
     url: {
       // チャンネルURL
       type: String

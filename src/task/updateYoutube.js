@@ -97,8 +97,8 @@ const insert = async (channelID, item, doChain) => {
     title: get(item, 'snippet.title'),
     text: get(item, 'snippet.description'),
     image: thumbnail,
-    url: `https://www.youtube.com/channel/${channelID}`,
     playlist: get(item, 'contentDetails.relatedPlaylists.uploads'),
+    url: `https://www.youtube.com/channel/${channelID}`,
     published_at: get(item, 'snippet.publishedAt')
   }
 
