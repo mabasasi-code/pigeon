@@ -11,7 +11,7 @@ export default {
     // コメント数
     type: Number
   },
-  subscribe: {
+  subscriber: {
     // 登録者数 (つべ仕様により切り捨て)
     type: Number
   },
