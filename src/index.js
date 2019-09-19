@@ -20,14 +20,7 @@ const boot = async () => {
 
   await updateYoutube(
     youtube,
-    [
-      'UC1519-d1jzGiL1MPTxEdtSA',
-      'UCP9ZgeIJ3Ri9En69R0kJc9Q',
-      'UC02LBsjt_Ehe7k0CuiNC6RQ',
-      'UCMzxQ58QL4NNbWghGymtHvw',
-      'UCOefINa2_BmpuX4BbHjdk9A',
-      'UC5nfcGkOAm3JwfPvJvzplHg'
-    ],
+    ['UC1519-d1jzGiL1MPTxEdtSA', 'UCP9ZgeIJ3Ri9En69R0kJc9Q'],
     true
   )
 }

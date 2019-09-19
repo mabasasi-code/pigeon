@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose'
+import statTemp from './template/youtube-stat-template'
 
 export default new Schema(
   {
@@ -36,6 +37,11 @@ export default new Schema(
     published_at: {
       // 開始日時
       type: Date
+    },
+    stats: {
+      now: statTemp,
+      max: statTemp,
+      diff: statTemp
     }
   },
   {

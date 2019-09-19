@@ -1,7 +1,7 @@
 import consola from 'consola'
 import { get } from 'object-path'
 import { forEachSeries } from 'p-iteration'
-import { Account, Youtube } from '../../models'
+import { Account, Youtube, YoutubeStat } from '../../models'
 import YoutubePaginator from '../lib/YoutubePaginator'
 import ResultCounter from '../lib/resultCounter'
 
@@ -59,7 +59,7 @@ export default async (api, channelIDs = [], doChain = false) => {
 }
 
 /**
- *
+ * Insert.
  * @param {String} channelID
  * @param {Object|null} item
  * @param {boolean} doChain
@@ -84,6 +84,14 @@ const insert = async (channelID, item, doChain) => {
     get(item, 'snippet.thumbnails.high.url') ||
     get(item, 'snippet.thumbnails.default.url')
 
+  const stat = {
+    timestamp: new Date(), // TODO: フェッチ日時にする
+    view: get(item, 'statistics.viewCount'),
+    comment: get(item, 'statistics.commentCount'),
+    subscriber: get(item, 'statistics.subscriberCount'),
+    video: get(item, 'statistics.videoCount')
+  }
+
   const meta = {
     channel_id: channelID,
     title: get(item, 'snippet.title'),
@@ -91,18 +99,20 @@ const insert = async (channelID, item, doChain) => {
     image: thumbnail,
     url: `https://www.youtube.com/channel/${channelID}`,
     playlist: get(item, 'contentDetails.relatedPlaylists.uploads'),
-    published_at: get(item, 'snippet.published_at')
+    published_at: get(item, 'snippet.publishedAt')
   }
+
   /// ////////////////////////////////////////////////////////////
 
   // DB 保存処理
   if (hasDatabase) {
-    // Youtube を更新
+    // ● Youtube を更新
     youtube.set(meta)
+    youtube.set('stats.now', stat)
     await youtube.save()
 
     const ylog = `<${youtube._id}> ${youtube.channel_id} ${youtube.title}`
-    consola.debug(`[Update Youtube] Update ${ylog}`)
+    consola.debug(`[Update Youtube] Update Youtube. ${ylog}`)
   } else {
     // チャンネルが存在しない場合、アカウントを連鎖で作成する
 
@@ -111,26 +121,36 @@ const insert = async (channelID, item, doChain) => {
       throw new Error(`<${channelID}> Does not exist in the database.`)
     }
 
-    // Account を作成
+    // ■ Account を作成
     const name = get(item, 'snippet.title', 'undefined')
     const account = new Account()
     account.set('name', name)
     await account.save()
 
     const alog = `<${account._id}> ${account.name}`
-    consola.debug(`[Update Youtube] Chaining Create ${alog}`)
+    consola.debug(`[Update Youtube] Chaining Create Account. ${alog}`)
 
-    // Youtube を作成
+    // ■ Youtube を作成
     youtube = new Youtube()
     youtube.account = account._id
     youtube.set(meta)
+    youtube.set('stats.now', stat)
     await youtube.save()
 
     const ylog = `<${youtube._id}> ${youtube.channel_id} ${youtube.title}`
-    consola.debug(`[Update Youtube] Create ${ylog}`)
+    consola.debug(`[Update Youtube] Create Youtube. ${ylog}`)
 
     // Account に Youtube を関連付け
     account.youtube.addToSet(youtube._id)
     await account.save()
   }
+
+  // ■ Youtube-Stat を作成
+  const youtubeStat = new YoutubeStat()
+  youtubeStat.youtube = youtube._id
+  youtubeStat.set(stat)
+  youtubeStat.save()
+
+  const slog = `<${youtubeStat._id}> ${youtubeStat.timestamp.toISOString()}`
+  consola.debug(`[Update Youtube] Update Youtube-Stat. ${slog}`)
 }
