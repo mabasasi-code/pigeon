@@ -4,13 +4,13 @@ import throwIf from '../lib/throwIf'
 import YoutubePaginator from '../lib/YoutubePaginator'
 import ItemSequencer from '../lib/itemSequencer'
 
-export default async (api, channelID) => {
-  consola.info(`[Collect Playlist] run '${channelID}' ...`)
+export default async (api, playlistId) => {
+  consola.info(`[Collect Playlist] run '${playlistId}' ...`)
 
   // API の処理を実装
   const paginator = new YoutubePaginator(async (next) => {
     const res = await api.playlistItems.list({
-      playlistId: channelID.join(', '),
+      playlistId,
       part: 'id, snippet',
       maxResults: 10,
       pageToken: next
@@ -27,14 +27,15 @@ export default async (api, channelID) => {
     const mes2 = `res:${paginator.statusCode}, next:${paginator.hasNext()}`
     consola.debug(`[Collect Playlist] Fetch ${items.length} items (${mes2})`)
 
-    // item が取得できなかったら終了
+    // item が取得できなかったらエラー
     throwIf(items.length === 0, new Error('Youtube Playlist fetch error.'))
 
-    // 処理プロセス
+    // 逐次処理プロセス
     const seq = process(items)
     res.merge(seq)
   } while (paginator.hasNext())
 
+  // 結果表示
   const videoIds = res.getResult()
   const mes = res.format('%r%, %t/%l, skip:%f')
   consola.info(`[Collect Playlist] FIN. Get ${videoIds.length} items (${mes})`)
