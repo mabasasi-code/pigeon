@@ -3,11 +3,11 @@ import { get } from 'object-path'
 import { forEachSeries } from 'p-iteration'
 import { Account, Youtube, YoutubeStat } from '../../models'
 import YoutubePaginator from '../lib/YoutubePaginator'
-import ResultCounter from '../lib/resultCounter'
+import ResultCounter from '../lib/itemSequencer'
 
 export default async (api, channelIDs = [], doChain = false) => {
   const len = channelIDs.length
-  consola.info(`[Update Youtube] run ${len} items...`)
+  consola.info(`[Update Youtube] run ${len} items ...`)
 
   // API の処理を実装
   // TODO: maxResult 関係
