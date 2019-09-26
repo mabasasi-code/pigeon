@@ -46,10 +46,10 @@ export default async (api, channelIDs = [], options = { doChain: false }) => {
   } while (paginator.hasNext())
 
   // 結果表示
-  const videoIds = res.getResult()
+  const results = res.getResult()
   const mes = res.format('%r%, %t/%l, skip:%f')
   consola.info(
-    `[Update Youtube] Finish! Update ${videoIds.length} items. (${mes})`
+    `[Update Youtube] Finish! Update ${results.length} items. (${mes})`
   )
 }
 
@@ -62,7 +62,7 @@ const process = async (map, options) => {
   }
   seq.onError = (value, key, error) => {
     consola.warn({
-      message: `[Update Youtube] <${key}> - ${error.message}`,
+      message: `[Update Youtube] '${key}' - ${error.message}`,
       badge: false
     })
   }

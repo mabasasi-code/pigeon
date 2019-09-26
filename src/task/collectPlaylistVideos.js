@@ -1,6 +1,7 @@
 import consola from 'consola'
 import { get } from 'object-path'
 import throwIf from '../lib/throwIf'
+import arrayToMap from '../lib/arrayToMap'
 import YoutubePaginator from '../lib/YoutubePaginator'
 import ItemSequencer from '../lib/itemSequencer'
 
@@ -25,43 +26,53 @@ export default async (api, playlistId) => {
     const items = await paginator.exec()
 
     const mes2 = `res:${paginator.statusCode}, next:${paginator.hasNext()}`
-    consola.debug(`[Collect Playlist] Fetch ${items.length} items (${mes2})`)
+    consola.debug(`[Collect Playlist] Fetch ${items.length} items. (${mes2})`)
 
-    // item が取得できなかったらエラー
+    // item が一つも取得できなかったらエラー
     throwIf(items.length === 0, new Error('Youtube Playlist fetch error.'))
 
+    // マッピング
+    const map = arrayToMap(items, (item) => get(item, 'id'))
+
     // 逐次処理プロセス
-    const seq = process(items)
+    const seq = await process(map)
     res.merge(seq)
   } while (paginator.hasNext())
 
   // 結果表示
   const videoIds = res.getResult()
   const mes = res.format('%r%, %t/%l, skip:%f')
-  consola.info(`[Collect Playlist] FIN. Get ${videoIds.length} items (${mes})`)
+  consola.info(
+    `[Collect Playlist] Finish! Get ${videoIds.length} items. (${mes})`
+  )
 
   return videoIds
 }
 
 /// //////////////////////////////////////////////////////////////////////
 
-const process = (items) => {
-  const seq = new ItemSequencer(items)
+const process = async (map, options) => {
+  const seq = new ItemSequencer(map)
+  seq.onError = (value, key, error) => {
+    consola.warn({
+      message: `[Collect Playlist] '${key}' - ${error.message}`,
+      badge: false
+    })
+  }
 
   // API値の整形
-  let item = null
-  while ((item = seq.next())) {
-    const videoId = get(item, 'snippet.resourceId.videoId')
+  await seq.forEach((value, key, iseq) => {
+    const videoId = get(value, 'snippet.resourceId.videoId')
     if (videoId) {
-      seq.success(videoId)
-    } else {
-      seq.error()
+      return videoId
     }
-  }
+
+    throw new Error('No video ID!')
+  })
 
   const res = seq.getResult()
   const mes = seq.format('%r%, %t/%l, skip:%f')
-  consola.debug(`[Collect Playlist] Get ${res.length} items  (${mes})`)
+  consola.debug(`[Collect Playlist] Get ${res.length} items. (${mes})`)
 
   return seq
 }

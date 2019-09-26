@@ -22,20 +22,20 @@ const boot = async () => {
   // なとり：'UC1519-d1jzGiL1MPTxEdtSA', 'UU1519-d1jzGiL1MPTxEdtSA
   // ちえり：'UCP9ZgeIJ3Ri9En69R0kJc9Q', 'UUP9ZgeIJ3Ri9En69R0kJc9Q
   // たね  ：'UCSNhwwbITYlFC0M0v8vgtjA', 'UUSNhwwbITYlFC0M0v8vgtjA'
-  await updateYoutube(
-    youtube,
-    [
-      'UCSNhwwbITYlFC0M0v8vgtjA',
-      'dummy',
-      'UC1519-d1jzGiL1MPTxEdtSA',
-      'UCP9ZgeIJ3Ri9En69R0kJc9Q'
-    ],
-    { doChain: true }
-  )
+  // await updateYoutube(
+  //   youtube,
+  //   [
+  //     'UCSNhwwbITYlFC0M0v8vgtjA',
+  //     'dummy',
+  //     'UC1519-d1jzGiL1MPTxEdtSA',
+  //     'UCP9ZgeIJ3Ri9En69R0kJc9Q'
+  //   ],
+  //   { doChain: true }
+  // )
 
-  // const videoIds = await collectPlaylistVideos(youtube, [
-  //   'UUSNhwwbITYlFC0M0v8vgtjA'
-  // ])
+  const videoIds = await collectPlaylistVideos(youtube, [
+    'UUSNhwwbITYlFC0M0v8vgtjA'
+  ])
 
   // console.log(videoIds)
 }

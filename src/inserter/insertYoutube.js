@@ -10,6 +10,7 @@ export default async (item, { doChain }) => {
 
   // ID の取得
   const cid = get(item, 'id')
+  consola.trace(`> run '${cid}'`)
 
   // DB から Document の取得 (失敗時は null)
   let youtube = await Youtube.findOne({ channel_id: cid })
@@ -49,13 +50,13 @@ export default async (item, { doChain }) => {
     await youtube.save()
 
     const ylog = `<${youtube._id}>, ${youtube.channel_id}, ${youtube.title}`
-    consola.debug(`> 'Youtube' Update. ${ylog}`)
+    consola.trace(`> 'Youtube' Update. ${ylog}`)
   } else {
     // チャンネルが存在しない場合、アカウントを連鎖で作成する
 
     // 連鎖保存NGなら例外
     if (!doChain) {
-      throw new Error(`<${cid}> Does not exist in the database.`)
+      throw new Error(`Does not exist in the database.`)
     }
 
     // ■ Account を作成
@@ -65,7 +66,7 @@ export default async (item, { doChain }) => {
     await account.save()
 
     const alog = `<${account._id}> ${account.name}`
-    consola.debug(`> 'Account' Chaining Create. ${alog}`)
+    consola.trace(`> 'Account' Chaining Create. ${alog}`)
 
     // ■ Youtube を作成
     youtube = new Youtube()
@@ -75,7 +76,7 @@ export default async (item, { doChain }) => {
     await youtube.save()
 
     const ylog = `<${youtube._id}>, ${youtube.channel_id}, ${youtube.title}`
-    consola.debug(`> 'Youtube' Create. ${ylog}`)
+    consola.trace(`> 'Youtube' Create. ${ylog}`)
 
     // Account に Youtube を関連付け
     account.youtube.addToSet(youtube._id)
@@ -89,7 +90,7 @@ export default async (item, { doChain }) => {
   youtubeStat.save()
 
   const yslog = `<${youtubeStat._id}>, ${youtubeStat.timestamp.toISOString()}`
-  consola.debug(`> 'YoutubeStat' Create. ${yslog}`)
+  consola.trace(`> 'YoutubeStat' Create. ${yslog}`)
 
   return youtube
 }
