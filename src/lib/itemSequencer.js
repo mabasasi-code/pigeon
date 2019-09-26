@@ -87,7 +87,7 @@ export default class ItemSequencer {
 
   rate() {
     const r = this._success / this._length
-    return r.toFixed(2) * 100
+    return r.toFixed(3) * 100
   }
 
   format(format = '%r%, %t/%l, skip:%f') {
