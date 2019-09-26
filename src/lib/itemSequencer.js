@@ -1,44 +1,82 @@
+import { get } from 'object-path'
+import { forEachSeries } from 'p-iteration'
+
 export default class ItemSequencer {
-  constructor(items = []) {
-    this._items = items
-    this._length = items.length
-    this._cursor = 0
+  /**
+   * Constructor.
+   * @param {Map} map KVマップ
+   */
+  constructor(map) {
+    if (!map) map = new Map()
+
+    this._map = map
+    this._length = map.size
 
     this._results = []
     this._success = 0
     this._error = 0
-  }
 
-  next() {
-    if (this._cursor > this._length) {
-      return undefined
+    this.onSuccess = (vaule, key, result) => {}
+    this.onError = (value, key, error) => {
+      throw error
     }
-
-    const item = this._items[this._cursor]
-    this._cursor++
-
-    return item
   }
 
-  success(obj = undefined) {
+  /**
+   * 逐次処理.
+   * - 内部で error catch しています
+   * - onSuccess(), onError() でのハンドリング推奨
+   * @param {Function} callback return と throw 成功失敗を判定
+   */
+  async forEach(callback) {
+    const entries = this._map.entries()
+
+    await forEachSeries(Array.from(entries), async (entry) => {
+      const key = get(entry, 0)
+      const value = get(entry, 1)
+
+      try {
+        const res = await callback(value, key, this)
+        this.success(res)
+        this.onSuccess(value, key, res)
+      } catch (err) {
+        this.error()
+        this.onError(value, key, err)
+      }
+    })
+  }
+
+  success(item = undefined) {
     this._success++
-
-    if (obj) this._results.push(obj)
+    if (item != null) this._results.push(item)
   }
 
-  error() {
+  error(item = undefined) {
     this._error++
+    if (item != null) this._results.push(item)
   }
 
   /// ////////////////////////////////////////////////////////////
 
+  /**
+   *
+   * @param {ItemSequencer} sequencer
+   */
   merge(sequencer) {
-    this._length += sequencer._length
     this._success += sequencer._success
     this._error += sequencer._error
-
-    this._items.push(...sequencer._items)
+    this._skip += sequencer._skip
     this._results.push(...sequencer._results)
+
+    // map のマージ
+    sequencer._map.forEach((v, k) => {
+      if (this._map.has(k)) {
+        console.error('sequence error!')
+      } else {
+        this._map.set(k, v)
+      }
+    })
+    this._length = this._map.size
   }
 
   /// ////////////////////////////////////////////////////////////

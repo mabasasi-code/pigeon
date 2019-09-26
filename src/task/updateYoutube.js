@@ -1,11 +1,13 @@
 import consola from 'consola'
 import { get } from 'object-path'
-import { forEachSeries } from 'p-iteration'
-import { Account, Youtube, YoutubeStat } from '../../models'
+import throwIf from '../lib/throwIf'
+import arrayToMap from '../lib/arrayToMap'
 import YoutubePaginator from '../lib/YoutubePaginator'
-import ResultCounter from '../lib/itemSequencer'
+import ItemSequencer from '../lib/itemSequencer'
 
-export default async (api, channelIDs = [], doChain = false) => {
+import insertYoutube from '../inserter/insertYoutube'
+
+export default async (api, channelIDs = [], options = { doChain: false }) => {
   const len = channelIDs.length
   consola.info(`[Update Youtube] run ${len} items ...`)
 
@@ -23,134 +25,58 @@ export default async (api, channelIDs = [], doChain = false) => {
     return res
   })
 
-  // API を叩く
-  const items = await paginator.exec()
+  // 連続処理
+  const res = new ItemSequencer()
+  do {
+    // API を叩く
+    const items = await paginator.exec()
 
-  // eslint-disable-next-line prettier/prettier
-  consola.info(`[Update Youtube] Fetch ${items.length} items. (${paginator.statusCode}, next: ${paginator.hasNext()})`)
+    const mes2 = `res:${paginator.statusCode}, next:${paginator.hasNext()}`
+    consola.debug(`[Update Youtube] Fetch ${items.length} items (${mes2})`)
 
-  // item が存在しなかったらエラー
-  if (items.length === 0) {
-    throw new Error('YouTube Channel fetch error.')
-  }
+    // item が一つも取得できなかったらエラー
+    throwIf(items.length === 0, new Error('Youtube Playlist fetch error.'))
 
-  // マッピング処理 ({ key: item ... })
-  const map = {}
-  for (const item of items) {
-    const cid = get(item, 'id')
-    map[cid] = item
-  }
+    // マッピング
+    const map = arrayToMap(items, (item) => get(item, 'id'), channelIDs)
 
-  // 先頭から一つずつ保存処理
-  const counter = new ResultCounter(len)
-  await forEachSeries(channelIDs, async (channelID) => {
-    try {
-      await insert(channelID, map[channelID], doChain)
-      counter.success()
-    } catch (err) {
-      // 内部でのエラーはログ出力のみ
-      consola.warn(err)
-      counter.skip()
-    }
-  })
+    // 逐次処理プロセス
+    const seq = await process(map, options)
+    res.merge(seq)
+  } while (paginator.hasNext())
 
-  // eslint-disable-next-line prettier/prettier
-  consola.info(`[Update Youtube] Save ${counter.t} items. (${counter.t}/${counter.len} ${counter.rate()}%)`)
+  // 結果表示
+  const videoIds = res.getResult()
+  const mes = res.format('%r%, %t/%l, skip:%f')
+  consola.info(
+    `[Update Youtube] Finish! Update ${videoIds.length} items. (${mes})`
+  )
 }
 
-/**
- * Insert.
- * @param {String} channelID
- * @param {Object|null} item
- * @param {boolean} doChain
- */
-const insert = async (channelID, item, doChain) => {
-  // データの存在チェック
-  if (!item) {
-    throw new Error(`<${channelID}> Fetch error.`)
+/// ////////////////////////////////////////////////////////////
+
+const process = async (map, options) => {
+  const seq = new ItemSequencer(map)
+  seq.onSuccess = (value, key, res) => {
+    consola.debug(`[Update Youtube] Updated. ${key}`)
+  }
+  seq.onError = (value, key, error) => {
+    consola.warn({
+      message: `[Update Youtube] <${key}> - ${error.message}`,
+      badge: false
+    })
   }
 
-  // データの整合性チェック (ID)
-  if (channelID !== get(item, 'id')) {
-    throw new Error(`<${channelID}> ID does not match.`)
-  }
+  // 一つずつ保存する
+  await seq.forEach(async (value, key, iseq) => {
+    const res = await insertYoutube(value, options)
+    return res
+  })
 
-  // DB Document の取得 (失敗時 null)
-  let youtube = await Youtube.findOne({ channel_id: channelID })
-  const hasDatabase = youtube !== null
+  // 結果表示
+  const res = seq.getResult()
+  const mes = seq.format('%r%, %t/%l, skip:%f')
+  consola.debug(`[Update Youtube] Update ${res.length} items. (${mes})`)
 
-  // データ整形 ///////////////////////////////////////////////////
-  const thumbnail =
-    get(item, 'snippet.thumbnails.high.url') ||
-    get(item, 'snippet.thumbnails.default.url')
-
-  const stat = {
-    timestamp: new Date(), // TODO: フェッチ日時にする
-    view: get(item, 'statistics.viewCount'),
-    comment: get(item, 'statistics.commentCount'),
-    subscriber: get(item, 'statistics.subscriberCount'),
-    video: get(item, 'statistics.videoCount')
-  }
-
-  const meta = {
-    channel_id: channelID,
-    title: get(item, 'snippet.title'),
-    text: get(item, 'snippet.description'),
-    image: thumbnail,
-    playlist: get(item, 'contentDetails.relatedPlaylists.uploads'),
-    url: `https://www.youtube.com/channel/${channelID}`,
-    published_at: get(item, 'snippet.publishedAt')
-  }
-
-  /// ////////////////////////////////////////////////////////////
-
-  // DB 保存処理
-  if (hasDatabase) {
-    // ● Youtube を更新
-    youtube.set(meta)
-    youtube.set('stats.now', stat)
-    await youtube.save()
-
-    const ylog = `<${youtube._id}> ${youtube.channel_id} ${youtube.title}`
-    consola.debug(`[Update Youtube] Update Youtube. ${ylog}`)
-  } else {
-    // チャンネルが存在しない場合、アカウントを連鎖で作成する
-
-    // 連鎖保存NGなら例外
-    if (!doChain) {
-      throw new Error(`<${channelID}> Does not exist in the database.`)
-    }
-
-    // ■ Account を作成
-    const name = get(item, 'snippet.title', 'undefined')
-    const account = new Account()
-    account.set('name', name)
-    await account.save()
-
-    const alog = `<${account._id}> ${account.name}`
-    consola.debug(`[Update Youtube] Chaining Create Account. ${alog}`)
-
-    // ■ Youtube を作成
-    youtube = new Youtube()
-    youtube.account = account._id
-    youtube.set(meta)
-    youtube.set('stats.now', stat)
-    await youtube.save()
-
-    const ylog = `<${youtube._id}> ${youtube.channel_id} ${youtube.title}`
-    consola.debug(`[Update Youtube] Create Youtube. ${ylog}`)
-
-    // Account に Youtube を関連付け
-    account.youtube.addToSet(youtube._id)
-    await account.save()
-  }
-
-  // ■ Youtube-Stat を作成
-  const youtubeStat = new YoutubeStat()
-  youtubeStat.youtube = youtube._id
-  youtubeStat.set(stat)
-  youtubeStat.save()
-
-  const slog = `<${youtubeStat._id}> ${youtubeStat.timestamp.toISOString()}`
-  consola.debug(`[Update Youtube] Update Youtube-Stat. ${slog}`)
+  return seq
 }
