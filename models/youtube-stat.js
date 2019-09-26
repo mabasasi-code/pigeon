@@ -5,7 +5,7 @@ export default new Schema({
   youtube: {
     type: Schema.Types.ObjectId,
     ref: 'Youtube',
-    required: [true, 'Account key is required.']
+    required: [true, 'Youtube key is required.']
   },
   ...statTemp
 })

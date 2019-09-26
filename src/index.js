@@ -3,6 +3,7 @@ import { google } from 'googleapis'
 import database from '../models'
 import updateYoutube from './task/updateYoutube'
 import collectPlaylistVideos from './task/collectPlaylistVideos'
+import updateVideo from './task/updateVideo'
 
 const boot = async () => {
   // ログレベルを trace に
@@ -33,11 +34,15 @@ const boot = async () => {
   //   { doChain: true }
   // )
 
-  const videoIds = await collectPlaylistVideos(youtube, [
-    'UUSNhwwbITYlFC0M0v8vgtjA'
-  ])
+  // const videoIds = await collectPlaylistVideos(youtube, [
+  //   'UUSNhwwbITYlFC0M0v8vgtjA'
+  // ])
 
-  // console.log(videoIds)
+  await updateVideo(
+    youtube,
+    ['rSz3LtJJRrw', 'wjCZ2vdK-B4', 'fR8Jw0vNhkg']
+  )
+
 }
 
 boot()

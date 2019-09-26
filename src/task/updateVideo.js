@@ -5,20 +5,21 @@ import arrayToMap from '../lib/arrayToMap'
 import YoutubePaginator from '../lib/YoutubePaginator'
 import ItemSequencer from '../lib/itemSequencer'
 
-import insertYoutube from '../inserter/insertYoutube'
+import insertVideo from '../inserter/insertVideo'
 
-export default async (api, channelIDs = [], options = { doChain: false }) => {
-  const len = channelIDs.length
-  consola.info(`[Update Youtube] run ${len} items ...`)
+export default async (api, videoIDs = [], options = { doChain: false }) => {
+  const len = videoIDs.length
+  consola.info(`[Update Video] run ${len} items ...`)
 
   // API の処理を実装
   // TODO: maxResult 関係
   // もしかしたらIDで検索すると maxResult が反応しない？
   // Search あたりで試してみる必要がある
   const paginator = new YoutubePaginator(async (next) => {
-    const res = await api.channels.list({
-      id: channelIDs.join(', '),
-      part: 'id, snippet, contentDetails, statistics',
+    const res = await api.videos.list({
+      id: videoIDs.join(', '),
+      part:
+        'id, snippet, contentDetails, liveStreamingDetails, status, statistics',
       maxResults: 50,
       pageToken: next
     })
@@ -32,13 +33,13 @@ export default async (api, channelIDs = [], options = { doChain: false }) => {
     const items = await paginator.exec()
 
     const mes2 = `res:${paginator.statusCode}, next:${paginator.hasNext()}`
-    consola.debug(`[Update Youtube] Fetch ${items.length} items (${mes2})`)
+    consola.debug(`[Update Video] Fetch ${items.length} items (${mes2})`)
 
     // item が一つも取得できなかったらエラー
     throwIf(items.length === 0, new Error('Youtube Playlist fetch error.'))
 
     // マッピング
-    const map = arrayToMap(items, (item) => get(item, 'id'), channelIDs)
+    const map = arrayToMap(items, (item) => get(item, 'id'), videoIDs)
 
     // 逐次処理プロセス
     const seq = await process(map, options)
@@ -49,7 +50,7 @@ export default async (api, channelIDs = [], options = { doChain: false }) => {
   const results = res.getResult()
   const mes = res.format('%r%, %t/%l, skip:%f')
   consola.info(
-    `[Update Youtube] Finish! Update ${results.length} items. (${mes})`
+    `[Update Video] Finish! Update ${results.length} items. (${mes})`
   )
 }
 
@@ -58,25 +59,25 @@ export default async (api, channelIDs = [], options = { doChain: false }) => {
 const process = async (map, options) => {
   const seq = new ItemSequencer(map)
   seq.onSuccess = (value, key, res) => {
-    consola.debug(`[Update Youtube] Updated. '${key}'`)
+    consola.debug(`[Update Video] Updated. '${key}'`)
   }
   seq.onError = (value, key, error) => {
     consola.warn({
-      message: `[Update Youtube] '${key}' - ${error.message}`,
+      message: `[Update Video] '${key}' - ${error.message}`,
       badge: false
     })
   }
 
   // 一つずつ保存する
   await seq.forEach(async (value, key, iseq) => {
-    const res = await insertYoutube(value, options)
+    const res = await insertVideo(value, options)
     return res
   })
 
   // 結果表示
   const res = seq.getResult()
   const mes = seq.format('%r%, %t/%l, skip:%f')
-  consola.debug(`[Update Youtube] Update ${res.length} items. (${mes})`)
+  consola.debug(`[Update Video] Update ${res.length} items. (${mes})`)
 
   return seq
 }

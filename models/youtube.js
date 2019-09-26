@@ -15,7 +15,7 @@ export default new Schema(
       required: [true, 'channel_id is required.'],
       validate: {
         validator: (v) => /^UC.+/.test(v),
-        message: (props) => `${props.value} is not a valid channel id.`
+        message: (props) => `${props.value} is not a valid channel_id.`
       }
     },
     title: {
@@ -30,10 +30,12 @@ export default new Schema(
       // 通常サムネ
       type: String
     },
+
     playlist: {
       // 動画プレイリスト
       type: String
     },
+
     url: {
       // チャンネルURL
       type: String
@@ -42,7 +44,9 @@ export default new Schema(
       // 開始日時
       type: Date
     },
+
     stats: {
+      // 統計情報
       now: statTemp,
       max: statTemp,
       diff: statTemp

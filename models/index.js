@@ -2,6 +2,8 @@ import mongoose from 'mongoose'
 import account from './account'
 import youtube from './youtube'
 import youtubeStat from './youtube-stat'
+import video from './video'
+import videoStat from './video-stat'
 
 let conn = null
 
@@ -30,3 +32,5 @@ export default async () => {
 export const Account = mongoose.model('Account', account)
 export const Youtube = mongoose.model('Youtube', youtube)
 export const YoutubeStat = mongoose.model('YoutubeStat', youtubeStat)
+export const Video = mongoose.model('Video', video)
+export const VideoStat = mongoose.model('VideoStat', videoStat)

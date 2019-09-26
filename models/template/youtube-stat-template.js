@@ -1,6 +1,6 @@
 export default {
   timestamp: {
-    // 日時
+    // 日時 必須にしたいけど無理
     type: Date
   },
   view: {

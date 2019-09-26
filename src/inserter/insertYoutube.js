@@ -2,9 +2,9 @@ import consola from 'consola'
 import { get } from 'object-path'
 import throwIf from '../lib/throwIf'
 
-import { Youtube, Account, YoutubeStat } from '../../models'
+import { Account, Youtube, YoutubeStat } from '../../models'
 
-export default async (item, { doChain }) => {
+export default async (item, { doChain = false }) => {
   // item が空ならエラー
   throwIf(item == null, new Error('No item data!'))
 
@@ -18,10 +18,12 @@ export default async (item, { doChain }) => {
 
   // データ整形 ///////////////////////////////////////////////////
 
+  // サムネイル選択
   const thumbnail =
     get(item, 'snippet.thumbnails.high.url') ||
     get(item, 'snippet.thumbnails.default.url')
 
+  // 統計情報
   const stat = {
     timestamp: new Date(), // TODO: フェッチ日時にする
     view: get(item, 'statistics.viewCount'),
@@ -30,6 +32,7 @@ export default async (item, { doChain }) => {
     video: get(item, 'statistics.videoCount')
   }
 
+  // メインメタ情報
   const meta = {
     channel_id: cid,
     title: get(item, 'snippet.title'),
@@ -52,12 +55,10 @@ export default async (item, { doChain }) => {
     const ylog = `<${youtube._id}>, ${youtube.channel_id}, ${youtube.title}`
     consola.trace(`> 'Youtube' Update. ${ylog}`)
   } else {
-    // チャンネルが存在しない場合、アカウントを連鎖で作成する
+    // channel が存在しない場合、アカウントを連鎖で作成する
 
     // 連鎖保存NGなら例外
-    if (!doChain) {
-      throw new Error(`Does not exist in the database.`)
-    }
+    throwIf(!doChain, new Error('Does not exist in the database.'))
 
     // ■ Account を作成
     const name = get(item, 'snippet.title', 'undefined')
@@ -70,7 +71,7 @@ export default async (item, { doChain }) => {
 
     // ■ Youtube を作成
     youtube = new Youtube()
-    youtube.account = account._id
+    youtube.set('account', account._id)
     youtube.set(meta)
     youtube.set('stats.now', stat)
     await youtube.save()
