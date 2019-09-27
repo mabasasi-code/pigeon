@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
+router.use('/account', require('./account').default)
 router.use('/channel', require('./channel').default)
 router.use('/video', require('./video').default)
 
