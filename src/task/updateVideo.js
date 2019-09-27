@@ -36,7 +36,7 @@ export default async (api, videoIDs = [], options = { doChain: false }) => {
     consola.debug(`[Update Video] Fetch ${items.length} items (${mes2})`)
 
     // item が一つも取得できなかったらエラー
-    throwIf(items.length === 0, new Error('Youtube Playlist fetch error.'))
+    throwIf(items.length === 0, new Error('Video data fetch error.'))
 
     // マッピング
     const map = arrayToMap(items, (item) => get(item, 'id'), videoIDs)

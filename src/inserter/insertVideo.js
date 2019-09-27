@@ -3,7 +3,7 @@ import moment from 'moment'
 import { get } from 'object-path'
 import throwIf from '../lib/throwIf'
 
-import { Youtube, Video, VideoStat } from '../../models'
+import { Channel, Video, VideoStat } from '../../models'
 
 export default async (item, { doChain = false }) => {
   // item が空ならエラー
@@ -134,16 +134,16 @@ export default async (item, { doChain = false }) => {
 
   // DB 保存処理 //////////////////////////////////////////////////
 
-  // ■ Youtube を取得してくる (無かったら null)
-  const youtube = await Youtube.findOne({ channel_id: channelId })
+  // ■ Channel を取得してくる (無かったら null)
+  const channel = await Channel.findOne({ channel_id: channelId })
 
   // 取得できなかったら例外
   // TODO: 連鎖
-  throwIf(!youtube, new Error('Youtube is not exist in the database.'))
+  throwIf(!channel, new Error("'Channel' is not exist in the database."))
 
   // ■ Video を作成
   if (!video) video = new Video()
-  video.set('youtube', youtube._id)
+  video.set('channel', channel._id)
   video.set(meta)
   video.set('stats.now', stat)
   await video.save()
@@ -158,7 +158,7 @@ export default async (item, { doChain = false }) => {
   videoStat.save()
 
   const vslog = `<${videoStat._id}>, ${videoStat.timestamp.toISOString()}`
-  consola.trace(`> 'YoutubeStat' Create. ${vslog}`)
+  consola.trace(`> 'VideoStat' Create. ${vslog}`)
 
   return video
 }

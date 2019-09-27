@@ -1,9 +1,9 @@
 import consola from 'consola'
 import { google } from 'googleapis'
 import database from '../models'
-import updateYoutube from './task/updateYoutube'
-import collectPlaylistVideos from './task/collectPlaylistVideos'
+import updateChannel from './task/updateChannel'
 import updateVideo from './task/updateVideo'
+import collectPlaylistVideos from './task/collectPlaylistVideos'
 
 const boot = async () => {
   // ログレベルを trace に
@@ -23,26 +23,25 @@ const boot = async () => {
   // なとり：'UC1519-d1jzGiL1MPTxEdtSA', 'UU1519-d1jzGiL1MPTxEdtSA
   // ちえり：'UCP9ZgeIJ3Ri9En69R0kJc9Q', 'UUP9ZgeIJ3Ri9En69R0kJc9Q
   // たね  ：'UCSNhwwbITYlFC0M0v8vgtjA', 'UUSNhwwbITYlFC0M0v8vgtjA'
-  // await updateYoutube(
-  //   youtube,
-  //   [
-  //     'UCSNhwwbITYlFC0M0v8vgtjA',
-  //     'dummy',
-  //     'UC1519-d1jzGiL1MPTxEdtSA',
-  //     'UCP9ZgeIJ3Ri9En69R0kJc9Q'
-  //   ],
-  //   { doChain: true }
-  // )
+  await updateChannel(
+    youtube,
+    [
+      'UCSNhwwbITYlFC0M0v8vgtjA',
+      'dummy',
+      'UC1519-d1jzGiL1MPTxEdtSA',
+      'UCP9ZgeIJ3Ri9En69R0kJc9Q'
+    ],
+    { doChain: true }
+  )
 
   // const videoIds = await collectPlaylistVideos(youtube, [
   //   'UUSNhwwbITYlFC0M0v8vgtjA'
   // ])
 
-  await updateVideo(
-    youtube,
-    ['rSz3LtJJRrw', 'wjCZ2vdK-B4', 'fR8Jw0vNhkg']
-  )
-
+  // await updateVideo(
+  //   youtube,
+  //   ['rSz3LtJJRrw', 'wjCZ2vdK-B4', 'fR8Jw0vNhkg']
+  // )
 }
 
 boot()

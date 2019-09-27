@@ -22,7 +22,7 @@ router.get(
 router.get(
   '/:id',
   wrap(async (req, res) => {
-    const id = req.params.id // videoID
+    const id = req.params.id // video_id
 
     // video
     const v = Video.findOne()
@@ -31,7 +31,7 @@ router.get(
 
     throwIf(!video, new Error('Data not founds.'))
 
-    // video statistics (最新10件を降順に)
+    // video-stat (最新10件を降順に)
     const s = VideoStat.find()
     s.where('video').equals(video._id)
     s.sort({ timestamp: -1 })

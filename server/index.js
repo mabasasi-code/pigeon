@@ -4,7 +4,7 @@ const { Nuxt, Builder } = require('nuxt')
 const app = express()
 
 const config = require('../nuxt.config.js')
-import database from '../models'
+const database = require('../models').default
 const routes = require('./routes')
 
 // Import and Set Nuxt.js options

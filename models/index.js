@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import account from './account'
-import youtube from './youtube'
-import youtubeStat from './youtube-stat'
+import channel from './channel'
+import channelStat from './channel-stat'
 import video from './video'
 import videoStat from './video-stat'
 
@@ -30,7 +30,7 @@ export default async () => {
 }
 
 export const Account = mongoose.model('Account', account)
-export const Youtube = mongoose.model('Youtube', youtube)
-export const YoutubeStat = mongoose.model('YoutubeStat', youtubeStat)
+export const Channel = mongoose.model('Channel', channel)
+export const ChannelStat = mongoose.model('ChannelStat', channelStat)
 export const Video = mongoose.model('Video', video)
 export const VideoStat = mongoose.model('VideoStat', videoStat)

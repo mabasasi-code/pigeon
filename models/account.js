@@ -6,10 +6,10 @@ export default new Schema(
       type: String,
       required: [true, 'name is required.']
     },
-    youtube: {
+    channels: {
       type: [Schema.Types.ObjectId],
-      ref: 'Youtube',
-      required: [true, 'YouTube key is required.']
+      ref: 'Channel',
+      required: [true, 'Channel key is required.']
     }
   },
   {

@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose'
-import statTemp from './template/youtube-stat-template'
+import statTemp from './template/channel-stat-template'
 
 export default new Schema(
   {

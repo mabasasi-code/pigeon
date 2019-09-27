@@ -29,7 +29,7 @@ export default async (api, playlistId) => {
     consola.debug(`[Collect Playlist] Fetch ${items.length} items. (${mes2})`)
 
     // item が一つも取得できなかったらエラー
-    throwIf(items.length === 0, new Error('Youtube Playlist fetch error.'))
+    throwIf(items.length === 0, new Error('Channel Playlist fetch error.'))
 
     // マッピング
     const map = arrayToMap(items, (item) => get(item, 'id'))

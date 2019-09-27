@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-router.use('/youtube', require('./youtube').default)
+router.use('/channel', require('./channel').default)
 router.use('/video', require('./video').default)
 
 router.get('/', (req, res) => {

@@ -3,10 +3,10 @@ import statTemp from './template/video-stat-template'
 
 export default new Schema(
   {
-    youtube: {
+    channel: {
       type: Schema.Types.ObjectId,
-      ref: 'Youtube',
-      required: [true, 'Youtube key is required.']
+      ref: 'Channel',
+      required: [true, 'Channel key is required.']
     },
     video_id: {
       type: String,

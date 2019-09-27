@@ -2,7 +2,7 @@ import consola from 'consola'
 import { get } from 'object-path'
 import throwIf from '../lib/throwIf'
 
-import { Account, Youtube, YoutubeStat } from '../../models'
+import { Account, Channel, ChannelStat } from '../../models'
 
 export default async (item, { doChain = false }) => {
   // item が空ならエラー
@@ -13,8 +13,8 @@ export default async (item, { doChain = false }) => {
   consola.trace(`> run '${cid}'`)
 
   // DB から Document の取得 (失敗時は null)
-  let youtube = await Youtube.findOne({ channel_id: cid })
-  const hasDatabase = youtube != null
+  let channel = await Channel.findOne({ channel_id: cid })
+  const hasDatabase = channel != null
 
   // データ整形 ///////////////////////////////////////////////////
 
@@ -47,18 +47,18 @@ export default async (item, { doChain = false }) => {
 
   // DB 保存処理
   if (hasDatabase) {
-    // ● Youtube を更新
-    youtube.set(meta)
-    youtube.set('stats.now', stat)
-    await youtube.save()
+    // ● Channel を更新
+    channel.set(meta)
+    channel.set('stats.now', stat)
+    await channel.save()
 
-    const ylog = `<${youtube._id}>, ${youtube.channel_id}, ${youtube.title}`
-    consola.trace(`> 'Youtube' Update. ${ylog}`)
+    const ylog = `<${channel._id}>, ${channel.channel_id}, ${channel.title}`
+    consola.trace(`> 'Channel' Update. ${ylog}`)
   } else {
     // channel が存在しない場合、アカウントを連鎖で作成する
 
     // 連鎖保存NGなら例外
-    throwIf(!doChain, new Error('Does not exist in the database.'))
+    throwIf(!doChain, new Error("'Channel' is not exist in the database."))
 
     // ■ Account を作成
     const name = get(item, 'snippet.title', 'undefined')
@@ -69,29 +69,29 @@ export default async (item, { doChain = false }) => {
     const alog = `<${account._id}> ${account.name}`
     consola.trace(`> 'Account' Chaining Create. ${alog}`)
 
-    // ■ Youtube を作成
-    youtube = new Youtube()
-    youtube.set('account', account._id)
-    youtube.set(meta)
-    youtube.set('stats.now', stat)
-    await youtube.save()
+    // ■ Channel を作成
+    channel = new Channel()
+    channel.set('account', account._id)
+    channel.set(meta)
+    channel.set('stats.now', stat)
+    await channel.save()
 
-    const ylog = `<${youtube._id}>, ${youtube.channel_id}, ${youtube.title}`
-    consola.trace(`> 'Youtube' Create. ${ylog}`)
+    const clog = `<${channel._id}>, ${channel.channel_id}, ${channel.title}`
+    consola.trace(`> 'Channel' Create. ${clog}`)
 
-    // Account に Youtube を関連付け
-    account.youtube.addToSet(youtube._id)
+    // Account に Channel を関連付け
+    account.channels.addToSet(channel._id)
     await account.save()
   }
 
-  // ■ Youtube-Stat を作成
-  const youtubeStat = new YoutubeStat()
-  youtubeStat.youtube = youtube._id
-  youtubeStat.set(stat)
-  youtubeStat.save()
+  // ■ Channel-Stat を作成
+  const channelStat = new ChannelStat()
+  channelStat.channel = channel._id
+  channelStat.set(stat)
+  channelStat.save()
 
-  const yslog = `<${youtubeStat._id}>, ${youtubeStat.timestamp.toISOString()}`
-  consola.trace(`> 'YoutubeStat' Create. ${yslog}`)
+  const cslog = `<${channelStat._id}>, ${channelStat.timestamp.toISOString()}`
+  consola.trace(`> 'ChannelStat' Create. ${cslog}`)
 
-  return youtube
+  return channel
 }
