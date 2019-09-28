@@ -23,7 +23,7 @@ module.exports = {
   /*
    ** Global CSS
    */
-  css: [],
+  css: [{ src: '~/assets/scss/index.scss', lang: 'scss' }],
   /*
    ** Plugins to load before mounting the App
    */
@@ -43,8 +43,8 @@ module.exports = {
     'nuxt-buefy',
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
-    // Doc: https://github.com/nuxt-community/dotenv-module
-    '@nuxtjs/dotenv',
+    // Doc: https://github.com/nuxt-community/moment-module
+    ['@nuxtjs/moment', ['ja']],
     '@nuxtjs/pwa'
   ],
   /*

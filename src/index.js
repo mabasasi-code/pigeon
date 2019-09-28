@@ -38,10 +38,10 @@ const boot = async () => {
   //   'UUSNhwwbITYlFC0M0v8vgtjA'
   // ])
 
-  // await updateVideo(
-  //   youtube,
-  //   ['rSz3LtJJRrw', 'wjCZ2vdK-B4', 'fR8Jw0vNhkg']
-  // )
+  await updateVideo(
+    youtube,
+    ['rSz3LtJJRrw', 'wjCZ2vdK-B4', 'fR8Jw0vNhkg']
+  )
 }
 
 boot()
