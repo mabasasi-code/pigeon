@@ -35,6 +35,7 @@ export default async (item, { doChain = false }) => {
   // メインメタ情報
   const meta = {
     channel_id: cid,
+    service: 'youtube',
     title: get(item, 'snippet.title'),
     text: get(item, 'snippet.description'),
     image: thumbnail,

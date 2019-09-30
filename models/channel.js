@@ -18,6 +18,10 @@ export default new Schema(
         message: (props) => `${props.value} is not a valid channel_id.`
       }
     },
+    service: {
+      // サイト名
+      type: String
+    },
     title: {
       // タイトル
       type: String
