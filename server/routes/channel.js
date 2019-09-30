@@ -26,7 +26,7 @@ router.get(
 
     // channel
     const c = Channel.findOne()
-    c.where('channel_id').equals(id)
+    c.or([{ _id: id }, { channel_id: id }])
     const channel = await c.exec()
 
     throwIf(!channel, new Error('Data not founds.'))
