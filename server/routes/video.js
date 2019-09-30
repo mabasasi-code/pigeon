@@ -9,8 +9,14 @@ const router = Router()
 router.get(
   '/',
   wrap(async (req, res) => {
+    const channel = req.query.channel // xx,yy,zz
+
     // video
     const v = Video.find()
+    if (channel) {
+      const channels = channel.split(',')
+      v.in('channel', channels)
+    }
     v.sort({ created_at: 1 })
     v.limit(10)
     const youtubes = await v.exec()
@@ -26,7 +32,7 @@ router.get(
 
     // video
     const v = Video.findOne()
-    v.where('video_id').equals(id)
+    v.or([{ _id: id }, { video_id: id }])
     const video = await v.exec()
 
     throwIf(!video, new Error('Data not founds.'))
