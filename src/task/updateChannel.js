@@ -12,18 +12,18 @@ export default async (api, channelIDs = [], options = { doChain: false }) => {
   consola.info(`[Update Youtube] run ${len} items ...`)
 
   // API の処理を実装
-  // TODO: maxResult 関係
-  // もしかしたらIDで検索すると maxResult が反応しない？
-  // Search あたりで試してみる必要がある
-  const paginator = new YoutubePaginator(async (next) => {
-    const res = await api.channels.list({
-      id: channelIDs.join(', '),
-      part: 'id, snippet, contentDetails, statistics',
-      maxResults: 50,
-      pageToken: next
-    })
-    return res
-  })
+  const paginator = new YoutubePaginator(
+    channelIDs,
+    async (chunk, { next, maxChunkSize }) => {
+      const res = await api.channels.list({
+        id: chunk.join(', '),
+        part: 'id, snippet, contentDetails, statistics',
+        maxResults: maxChunkSize,
+        pageToken: next
+      })
+      return res
+    }
+  )
 
   // 連続処理
   const res = new ItemSequencer()

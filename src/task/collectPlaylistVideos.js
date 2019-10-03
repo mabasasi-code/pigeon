@@ -9,15 +9,18 @@ export default async (api, playlistId) => {
   consola.info(`[Collect Playlist] run '${playlistId}' ...`)
 
   // API の処理を実装
-  const paginator = new YoutubePaginator(async (next) => {
-    const res = await api.playlistItems.list({
-      playlistId,
-      part: 'id, snippet',
-      maxResults: 10,
-      pageToken: next
-    })
-    return res
-  })
+  const paginator = new YoutubePaginator(
+    playlistId,
+    async (chunk, { next, maxChunkSize }) => {
+      const res = await api.playlistItems.list({
+        playlistId: chunk,
+        part: 'id, snippet',
+        maxResults: maxChunkSize,
+        pageToken: next
+      })
+      return res
+    }
+  )
 
   // 連続処理
   const res = new ItemSequencer()

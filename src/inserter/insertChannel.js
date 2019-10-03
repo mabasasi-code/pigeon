@@ -5,12 +5,12 @@ import throwIf from '../lib/throwIf'
 import { Account, Channel, ChannelStat } from '../../models'
 
 export default async (item, { doChain = false }) => {
-  // item が空ならエラー
-  throwIf(item == null, new Error('No item data!'))
-
   // ID の取得
   const cid = get(item, 'id')
-  consola.trace(`> run '${cid}'`)
+  consola.trace(`>> run '${cid}'`)
+
+  // item が空ならエラー
+  throwIf(item == null, new Error('No item data!'))
 
   // DB から Document の取得 (失敗時は null)
   let channel = await Channel.findOne({ channel_id: cid })

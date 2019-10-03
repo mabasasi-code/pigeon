@@ -6,16 +6,16 @@ import throwIf from '../lib/throwIf'
 import { Channel, Video, VideoStat } from '../../models'
 
 export default async (item, { doChain = false }) => {
+  // ID の取得
+  const vid = get(item, 'id')
+  consola.trace(`>> run '${vid}'`)
+
   // item が空ならエラー
   throwIf(item == null, new Error('No item data!'))
 
-  // ID の取得
-  const vid = get(item, 'id')
-  consola.trace(`> run '${vid}'`)
-
   // DB から Document の取得 (失敗時は null)
   let video = await Video.findOne({ video_id: vid })
-  const hasDatabase = video != null
+  // const hasDatabase = video != null
 
   // データ整形 ///////////////////////////////////////////////////
 
