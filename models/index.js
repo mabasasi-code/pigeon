@@ -17,7 +17,10 @@ export default async () => {
     throw new Error('Write MONGO_URL to ".env"')
   }
 
-  mongoose.set('debug', true)
+  if (process.env.MONGO_DEBUG === true) {
+    mongoose.set('debug', true)
+  }
+
   mongoose.set('useFindAndModify', false)
 
   conn = await mongoose.connect(process.env.MONGO_URL, {
