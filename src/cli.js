@@ -9,7 +9,7 @@ import updateVideo from './task/updateVideo'
 import collectPlaylistVideos from './task/collectPlaylistVideos'
 
 // ログレベルを設定
-consola.level = process.env.APP_DEBUG === true ? 'trace' : 'info'
+consola.level = process.env.APP_DEBUG === 'true' ? 'trace' : 'info'
 
 // 簡易 wrapper
 const wrap = async (callback) => {

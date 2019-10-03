@@ -8,14 +8,15 @@ const router = Router()
 router.get(
   '/',
   wrap(async (req, res) => {
+    const { sort, order, page, limit, simple } = req.query // 統計系
+
     // account
     const a = Account.find()
     a.populate('channels')
-    a.sort({ created_at: 1 })
-    a.limit(10)
-    const accounts = await a.exec()
+    a.sort({ [sort]: order })
+    const accounts = await Account.paginate(a, { page, limit })
 
-    res.status(200).json(accounts)
+    res.status(200).json(simple ? simple.items : accounts)
   })
 )
 

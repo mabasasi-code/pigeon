@@ -9,7 +9,8 @@ const router = Router()
 router.get(
   '/',
   wrap(async (req, res) => {
-    const channel = req.query.channel // xx,yy,zz
+    const { sort, order, page, limit, simple } = req.query // 統計系
+    const channel = req.query.channel // 所属チャンネル xx,yy,zz
 
     // video
     const v = Video.find()
@@ -17,11 +18,10 @@ router.get(
       const channels = channel.split(',')
       v.in('channel', channels)
     }
-    v.sort({ created_at: 1 })
-    v.limit(10)
-    const youtubes = await v.exec()
+    v.sort({ [sort]: order })
+    const youtubes = await Video.paginate(v, { page, limit })
 
-    res.status(200).json(youtubes)
+    res.status(200).json(simple ? youtubes.items : youtubes)
   })
 )
 

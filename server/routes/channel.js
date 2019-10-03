@@ -9,13 +9,14 @@ const router = Router()
 router.get(
   '/',
   wrap(async (req, res) => {
+    const { sort, order, page, limit, simple } = req.query // 統計系
+
     // channel
     const c = Channel.find()
-    c.sort({ created_at: 1 })
-    c.limit(10)
-    const channels = await c.exec()
+    c.sort({ [sort]: order })
+    const channels = await Channel.paginate(c, { page, limit })
 
-    res.status(200).json(channels)
+    res.status(200).json(simple ? channels.items : channels)
   })
 )
 
