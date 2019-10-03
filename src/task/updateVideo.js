@@ -11,6 +11,9 @@ export default async (api, videoIDs = [], options = { doChain: false }) => {
   const len = videoIDs.length
   consola.info(`[Update Video] run ${len} items ...`)
 
+  // もし id配列が空なら例外
+  throwIf(!videoIDs || !videoIDs.length, new Error('Parameter error of IDs.'))
+
   // API の処理を実装
   const paginator = new YoutubePaginator(
     videoIDs,

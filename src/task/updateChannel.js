@@ -11,6 +11,12 @@ export default async (api, channelIDs = [], options = { doChain: false }) => {
   const len = channelIDs.length
   consola.info(`[Update Youtube] run ${len} items ...`)
 
+  // もし id配列が空なら例外
+  throwIf(
+    !channelIDs || !channelIDs.length,
+    new Error('Parameter error of IDs.')
+  )
+
   // API の処理を実装
   const paginator = new YoutubePaginator(
     channelIDs,

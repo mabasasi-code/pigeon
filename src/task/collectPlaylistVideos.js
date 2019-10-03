@@ -8,6 +8,9 @@ import ItemSequencer from '../lib/itemSequencer'
 export default async (api, playlistId, options = { getAll: false }) => {
   consola.info(`[Collect Playlist] run '${playlistId}' ...`)
 
+  // もし id配列が空なら例外
+  throwIf(playlistId, new Error('Parameter error of ID.'))
+
   // API の処理を実装
   const paginator = new YoutubePaginator(
     playlistId,
