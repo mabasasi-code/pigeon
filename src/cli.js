@@ -1,6 +1,7 @@
 import consola from 'consola'
 import { cac } from 'cac'
 import database, { Channel } from '../models'
+import throwIf from './lib/throwIf'
 import api from './lib/youtubeAPI'
 
 import updateChannel from './task/updateChannel'
@@ -67,6 +68,23 @@ cli
 
       const vids = await collectPlaylistVideos(api, pids, { getAll })
       await updateVideo(api, vids, { doChain })
+    })
+  })
+
+/// ////////////////////////////////////////////////////////////
+
+cli
+  .command('clear', '!!! Reset database. --yes option required. !!!')
+  .option('-y, --yes', 'Required')
+  .action(async (options) => {
+    const yes = options.yes // 許可
+
+    await wrap(async () => {
+      throwIf(!yes, new Error('--yes option required.'))
+
+      const conn = await database()
+      const res = await conn.connection.db.dropDatabase()
+      consola.info(res)
     })
   })
 
