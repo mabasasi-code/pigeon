@@ -23,25 +23,30 @@ const boot = async () => {
   // なとり：'UC1519-d1jzGiL1MPTxEdtSA', 'UU1519-d1jzGiL1MPTxEdtSA
   // ちえり：'UCP9ZgeIJ3Ri9En69R0kJc9Q', 'UUP9ZgeIJ3Ri9En69R0kJc9Q
   // たね  ：'UCSNhwwbITYlFC0M0v8vgtjA', 'UUSNhwwbITYlFC0M0v8vgtjA'
-  await updateChannel(
-    youtube,
-    [
-      'UCSNhwwbITYlFC0M0v8vgtjA',
-      'dummy',
-      'UC1519-d1jzGiL1MPTxEdtSA',
-      'UCP9ZgeIJ3Ri9En69R0kJc9Q'
-    ],
-    { doChain: true }
-  )
+  // await updateChannel(
+  //   youtube,
+  //   [
+  //     'UCSNhwwbITYlFC0M0v8vgtjA',
+  //     'dummy',
+  //     'UC1519-d1jzGiL1MPTxEdtSA',
+  //     'UCP9ZgeIJ3Ri9En69R0kJc9Q'
+  //   ],
+  //   { doChain: true }
+  // )
 
-  // const videoIds = await collectPlaylistVideos(youtube, [
-  //   'UUSNhwwbITYlFC0M0v8vgtjA'
+  // await updateVideo(youtube, [
+  //   'rSz3LtJJRrw',
+  //   'wjCZ2vdK-B4',
+  //   'dummy',
+  //   'fR8Jw0vNhkg'
   // ])
 
-  await updateVideo(
+  const videoIds = await collectPlaylistVideos(
     youtube,
-    ['rSz3LtJJRrw', 'wjCZ2vdK-B4', 'fR8Jw0vNhkg']
+    ['UUSNhwwbITYlFC0M0v8vgtjA'],
+    { getAll: true }
   )
+  await updateVideo(youtube, videoIds)
 }
 
 boot()

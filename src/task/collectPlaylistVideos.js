@@ -5,7 +5,7 @@ import arrayToMap from '../lib/arrayToMap'
 import YoutubePaginator from '../lib/YoutubePaginator'
 import ItemSequencer from '../lib/itemSequencer'
 
-export default async (api, playlistId) => {
+export default async (api, playlistId, options = { getAll: false }) => {
   consola.info(`[Collect Playlist] run '${playlistId}' ...`)
 
   // API の処理を実装
@@ -40,7 +40,7 @@ export default async (api, playlistId) => {
     // 逐次処理プロセス
     const seq = await process(map)
     res.merge(seq)
-  } while (paginator.hasNext())
+  } while (options.getAll && paginator.hasNext())
 
   // 結果表示
   const videoIds = res.getResult()
