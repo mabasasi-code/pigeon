@@ -82,7 +82,7 @@ const process = async (map, options) => {
   // 結果表示
   const res = seq.getResult()
   const mes = seq.format('%r%, %t/%l, skip:%f')
-  consola.debug(`[Update YoutChannelube] Update ${res.length} items. (${mes})`)
+  consola.debug(`[Update Channel] Update ${res.length} items. (${mes})`)
 
   return seq
 }
