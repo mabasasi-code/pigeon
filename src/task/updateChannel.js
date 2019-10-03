@@ -44,7 +44,7 @@ export default async (api, channelIDs = [], options = { doChain: false }) => {
     throwIf(items.length === 0, new Error('Channel data fetch error.'))
 
     // マッピング
-    const map = arrayToMap(items, (item) => get(item, 'id'), channelIDs)
+    const map = arrayToMap(items, (item) => get(item, 'id'), paginator.useChunk)
 
     // 逐次処理プロセス
     const seq = await process(map, options)
@@ -64,7 +64,7 @@ export default async (api, channelIDs = [], options = { doChain: false }) => {
 const process = async (map, options) => {
   const seq = new ItemSequencer(map)
   seq.onSuccess = (value, key, res) => {
-    consola.debug(`[Update Channel] Updated. '${key}'`)
+    consola.debug(`[Update Channel] Updated. '${key}' ${res.title}`)
   }
   seq.onError = (value, key, error) => {
     consola.warn({

@@ -18,20 +18,17 @@ export default class YoutubePaginator {
     this._cursor = 0 // 参照している chunk
 
     this.result = null
+    this.useChunk = []
+
+    this.statusCode = null
     this.nextPageToken = null
     this.prevPageToken = null
     this.totalResults = null
     this.resultsPerPage = null
-
-    this.statusCode = null
   }
 
   hasNext() {
-    return !!this.nextPageToken
-  }
-
-  hasPrev() {
-    return !!this.nextPageToken
+    return this.nextPageToken || this._cursor < this._chunks.length
   }
 
   async exec() {
@@ -40,6 +37,7 @@ export default class YoutubePaginator {
     // chunk, meta
     const res = await this.closure(chunk, {
       next: this.nextPageToken,
+      prev: this.prevPageToken,
       maxChunkSize: this.maxChunkSize,
       counter: this._counter,
       cursor: this._cursor,
@@ -48,12 +46,13 @@ export default class YoutubePaginator {
     })
 
     this.result = res
+    this.useChunk = chunk
+
+    this.statusCode = get(res, 'status')
     this.nextPageToken = get(res, 'data.nextPageToken')
     this.prevPageToken = get(res, 'data.prevPageToken')
     this.totalResults = get(res, 'data.pageInfo.totalResults')
     this.resultsPerPage = get(res, 'data.pageInfo.resultsPerPage')
-
-    this.statusCode = get(res, 'status')
 
     this._counter++
     if (!this.nextPageToken) {

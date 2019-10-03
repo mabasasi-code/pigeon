@@ -42,7 +42,7 @@ export default async (api, videoIDs = [], options = { doChain: false }) => {
     throwIf(items.length === 0, new Error('Video data fetch error.'))
 
     // マッピング
-    const map = arrayToMap(items, (item) => get(item, 'id'), videoIDs)
+    const map = arrayToMap(items, (item) => get(item, 'id'), paginator.useChunk)
 
     // 逐次処理プロセス
     const seq = await process(map, options)
@@ -62,7 +62,7 @@ export default async (api, videoIDs = [], options = { doChain: false }) => {
 const process = async (map, options) => {
   const seq = new ItemSequencer(map)
   seq.onSuccess = (value, key, res) => {
-    consola.debug(`[Update Video] Updated. '${key}'`)
+    consola.debug(`[Update Video] Updated. '${key}' ${res.title}`)
   }
   seq.onError = (value, key, error) => {
     consola.warn({

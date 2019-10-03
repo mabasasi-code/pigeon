@@ -8,21 +8,22 @@ import ItemSequencer from '../lib/itemSequencer'
 export default async (api, playlistId, options = { getAll: false }) => {
   consola.info(`[Collect Playlist] run '${playlistId}' ...`)
 
-  // もし id配列が空なら例外
-  throwIf(playlistId, new Error('Parameter error of ID.'))
+  // もし idが空なら例外
+  throwIf(!playlistId, new Error('Parameter error of ID.'))
 
   // API の処理を実装
   const paginator = new YoutubePaginator(
     playlistId,
-    async (chunk, { next, maxChunkSize }) => {
+    async (chunk, { next }) => {
       const res = await api.playlistItems.list({
         playlistId: chunk,
         part: 'id, snippet',
-        maxResults: maxChunkSize,
+        maxResults: 50,
         pageToken: next
       })
       return res
-    }
+    },
+    1
   )
 
   // 連続処理
