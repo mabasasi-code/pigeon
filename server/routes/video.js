@@ -19,9 +19,9 @@ router.get(
       v.in('channel', channels)
     }
     v.sort({ [sort]: order })
-    const youtubes = await Video.paginate(v, { page, limit })
+    const videos = await Video.paginate(v, { page, limit })
 
-    res.status(200).json(simple ? youtubes.items : youtubes)
+    res.status(200).json(simple ? videos.items : videos)
   })
 )
 

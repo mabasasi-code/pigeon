@@ -8,7 +8,7 @@ const router = Router()
 router.get(
   '/',
   wrap(async (req, res) => {
-    const { sort, order, page, limit, simple } = req.query // 統計系
+    const { sort, order, page, limit, simple } = req.query // ???
 
     // account
     const a = Account.find()
@@ -16,7 +16,7 @@ router.get(
     a.sort({ [sort]: order })
     const accounts = await Account.paginate(a, { page, limit })
 
-    res.status(200).json(simple ? simple.items : accounts)
+    res.status(200).json(simple ? accounts.items : accounts)
   })
 )
 
