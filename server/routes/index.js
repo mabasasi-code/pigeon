@@ -5,12 +5,18 @@ const numberLimit = require('../lib/numberLimit')
 
 // pre processing
 router.use(function(req, res, next) {
+  if (!(process.env.NODE_ENV === 'production')) {
+    // eslint-disable-next-line no-console
+    console.log('[express] ' + req.url)
+  }
+
   // 初期値は新規順に10件
   // TODO: パラメタチェックしたい
   req.query.sort = req.query.sort || 'created_at'
   req.query.order = req.query.order || 'desc'
   req.query.page = req.query.page || 1
-  req.query.limit = numberLimit(req.query.limit, 0, 50, 0)
+  req.query.limit = numberLimit(req.query.limit, 0, 50, 5)
+
   next()
 })
 
