@@ -12,11 +12,13 @@ export default async (api, playlistId, options = { getAll: false }) => {
   throwIf(!playlistId, new Error('Parameter error of ID.'))
 
   // API の処理を実装
+  // TODO: とりあえず playlistID を外部から強制設定するようにした
+  // playlist を配列で扱う方法があったら置き換える
   const paginator = new YoutubePaginator(
-    playlistId,
-    async (chunk, { next }) => {
+    playlistId, // 内部では使わない
+    async (chunks, { next }) => {
       const res = await api.playlistItems.list({
-        playlistId: chunk,
+        playlistId,
         part: 'id, snippet',
         maxResults: 50,
         pageToken: next
@@ -35,8 +37,9 @@ export default async (api, playlistId, options = { getAll: false }) => {
     const mes2 = `res:${paginator.statusCode}, next:${paginator.hasNext()}`
     consola.debug(`[Collect Playlist] Fetch ${items.length} items. (${mes2})`)
 
-    // item が一つも取得できなかったらエラー
-    throwIf(items.length === 0, new Error('Channel Playlist fetch error.'))
+    // item 配列が存在しなかったらエラー、空ならスキップ
+    throwIf(!Array.isArray(items), new Error('Channel Playlist fetch error.'))
+    if (items.length === 0) continue
 
     // マッピング
     const map = arrayToMap(items, (item) => get(item, 'id'))

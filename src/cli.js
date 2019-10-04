@@ -1,5 +1,6 @@
 import consola from 'consola'
 import { cac } from 'cac'
+import { forEachSeries } from 'p-iteration'
 import database, { Channel } from '../models'
 import throwIf from './lib/throwIf'
 import api from './lib/youtubeAPI'
@@ -66,8 +67,10 @@ cli
       const channels = await q.exec()
       const pids = channels.map((e) => e.playlist).filter((e) => e)
 
-      const vids = await collectPlaylistVideos(api, pids, { getAll })
-      await updateVideo(api, vids, { doChain })
+      await forEachSeries(pids, async (pid) => {
+        const vids = await collectPlaylistVideos(api, pid, { getAll })
+        await updateVideo(api, vids, { doChain })
+      })
     })
   })
 

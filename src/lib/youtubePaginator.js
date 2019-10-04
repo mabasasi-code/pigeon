@@ -59,6 +59,6 @@ export default class YoutubePaginator {
       this._cursor++
     }
 
-    return get(res, 'data.items') || []
+    return get(res, 'data.items') || undefined
   }
 }

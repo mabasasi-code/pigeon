@@ -38,8 +38,9 @@ export default async (api, videoIDs = [], options = { doChain: false }) => {
     const mes2 = `res:${paginator.statusCode}, next:${paginator.hasNext()}`
     consola.debug(`[Update Video] Fetch ${items.length} items (${mes2})`)
 
-    // item が一つも取得できなかったらエラー
-    throwIf(items.length === 0, new Error('Video data fetch error.'))
+    // item 配列が存在しなかったらエラー、空ならスキップ
+    throwIf(!Array.isArray(items), new Error('Video data fetch error.'))
+    if (items.length === 0) continue
 
     // マッピング
     const map = arrayToMap(items, (item) => get(item, 'id'), paginator.useChunk)
