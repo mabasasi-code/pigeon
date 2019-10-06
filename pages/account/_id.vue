@@ -1,59 +1,38 @@
 <template lang="pug">
   div(v-if='account._id')
-    v-card
-      v-card-title {{ account.name }}
-      v-card-text asd
+    v-row
 
-    template(v-for='channel in account.channels')
-      v-card
-        v-layout(wrap)
-          v-img(:src='channel.image' width='200px' height='200px')
-          
-          v-flex
-            div {{ channel.service }}
-            div {{ channel.title }}
+      v-col
+        v-row
+          v-col
+            v-card
+              v-card-title {{ account.name }}
+              v-card-text asd
+        
+        v-row
+          v-col(v-for='(channel, key) in account.channels' :key='key')
+            ChannelPanel(:channel='channel')
 
-            v-flex
-              v-icon mdi-account
-              span {{ channel.stats.now.subscriber | numberFormat }}
-            v-flex
-              v-icon mdi-filmstrip
-              span {{ channel.stats.now.video | numberFormat }}
-            v-flex
-              v-icon mdi-play
-              span {{ channel.stats.now.view | numberFormat }}
-            v-flex
-              v-icon mdi-comment
-              span {{ channel.stats.now.comment | numberFormat}}
+      v-col
+        VideoListPanel(:videos='videos')
 
-            v-btn(:href='channel.url' target='_blank') page
-            div {{ channel.stats.now }}
-      //- v-card
-      //-   v-card-title {{ channel.service }}
-      //-   v-card-text
-      //-     v-layout
-      //-       v-btn asd
-      //-       v-spacer
-      //-       v-btn qwe
-
-    
-
-  //- v-layout(wrap)
-  //-   code {{ account }}
-  //-   code {{ videos }}
 </template>
 
 <script>
+import ChannelPanel from '~/components/account/channel-panel.vue'
+import VideoListPanel from '~/components/account/video-list-panel.vue'
+
 export default {
-  filters: {
-    numberFormat(val) {
-      return val.toLocaleString()
-    }
+  components: {
+    ChannelPanel,
+    VideoListPanel
   },
+
   data() {
     return {
       account: {},
-      videos: []
+      videos: [],
+      paginator: {}
     }
   },
 
@@ -68,11 +47,18 @@ export default {
       const account = await this.$axios.$get(`/account/${id}`)
       this.account = account
 
-      const channels = account.channels.map((e) => e._id)
-      const videos = await this.$axios.$get(`/video`, {
-        params: { channel: channels.join(',') }
+      const channelKeys = account.channels.map((e) => e._id)
+      const { items, paginator } = await this.$axios.$get(`/video`, {
+        params: {
+          channel: channelKeys.join(','),
+          limit: 20,
+          sort: 'start_time',
+          order: 'desc'
+        }
       })
-      this.videos = videos || []
+
+      this.videos = items || []
+      this.paginator = paginator
     }
   }
 }

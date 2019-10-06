@@ -24,7 +24,13 @@ export default {
 
   methods: {
     async getDataFromApi() {
-      const items = await this.$axios.$get('/account')
+      const { items } = await this.$axios.$get('/account', {
+        params: {
+          limit: 20,
+          sort: 'created_at',
+          order: 'asc'
+        }
+      })
       this.items = items || []
     }
   }

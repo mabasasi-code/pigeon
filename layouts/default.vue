@@ -4,7 +4,8 @@
     <v-navigation-drawer
       v-model="drawer"
       :mini-variant="miniVariant"
-      :clipped="true"
+      :clipped="clipped"
+      mobile-break-point="960"
       fixed
       app
     >
@@ -47,7 +48,7 @@
 
     <!-- メイン -->
     <v-content>
-      <v-container>
+      <v-container fluid>
         <nuxt />
       </v-container>
     </v-content>
@@ -77,8 +78,8 @@
 export default {
   data() {
     return {
-      clipped: true,
-      drawer: false,
+      clipped: true, // ？？？
+      drawer: false, // サイドメニューの表示表示
       // fixed: false,
       items: [
         {
@@ -93,14 +94,14 @@ export default {
         },
         {
           icon: 'mdi-chart-bubble',
-          title: 'アカ',
+          title: 'VTuber',
           to: '/account'
         }
       ],
-      miniVariant: false,
-      right: true,
-      rightDrawer: false,
-      title: 'Pigeon'
+      miniVariant: false, // サイドメニューの幅
+      // right: true,
+      // rightDrawer: false,
+      title: 'Pigeon' // ヘッダ
     }
   }
 }
