@@ -10,9 +10,14 @@ router.get(
   '/',
   wrap(async (req, res) => {
     const { sort, order, page, limit, simple } = req.query // 統計系
+    const text = req.query.text // 検索文字列
 
     // channel
     const c = Channel.find()
+    if (text) {
+      // 文字列抽出
+      c.or([{ title: { $regex: new RegExp(text, 'i') } }])
+    }
     c.sort({ [sort]: order })
     const channels = await Channel.paginate(c, { page, limit })
 
