@@ -1,87 +1,43 @@
-<template>
-  <v-app dark>
-    <!-- サイドメニュー部 -->
-    <v-navigation-drawer
-      v-model="drawer"
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      mobile-break-point="960"
+<template lang="pug">
+  v-app(dark)
+    //- サイドメニュー部
+    v-navigation-drawer(
+      v-model='drawer'
+      :mini-variant='miniVariant'
+      :clipped='clipped'
+      mobile-break-point='960'
       fixed
-      app
-    >
-      <v-list>
-        <v-list-item
-          v-for="(item, i) in items"
-          :key="i"
-          :to="item.to"
-          router
-          exact
-        >
-          <v-list-item-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title v-text="item.title" />
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
+      app)
+      v-list
+        v-list-item(v-for='(route, key) in routes' :key='key' :to='route.to' router)
+          v-list-item-action
+            v-icon {{ route.icon }}
+          v-list-item-content
+            v-list-item-title(v-text='route.title')
 
-    <!-- ヘッダーメニュー部 -->
-    <v-app-bar :clipped-left="clipped" fixed app>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-btn icon @click.stop="miniVariant = !miniVariant">
-        <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
-      </v-btn>
-      <!-- <v-btn icon @click.stop="clipped = !clipped">
-        <v-icon>mdi-application</v-icon>
-      </v-btn> -->
-      <!-- <v-btn icon @click.stop="fixed = !fixed">
-        <v-icon>mdi-minus</v-icon>
-      </v-btn> -->
-      <v-toolbar-title v-text="title" />
-      <!-- <v-spacer /> -->
-      <!-- <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-        <v-icon>mdi-menu</v-icon>
-      </v-btn> -->
-    </v-app-bar>
+    //- ヘッダメニュー部
+    v-app-bar(:clipped-left='clipped' fixed app)
+      v-app-bar-nav-icon(@click.stop='drawer = !drawer')
+      v-btn(icon @click.stop='miniVariant = !miniVariant')
+        v-icon mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}
+      v-toolbar-title(v-text='title')
 
-    <!-- メイン -->
-    <v-content>
-      <v-container fluid>
-        <nuxt />
-      </v-container>
-    </v-content>
+    //- メイン
+    v-content
+      v-container(fluid)
+        nuxt
 
-    <!-- ドロワー部 -->
-    <!-- <v-navigation-drawer v-model="rightDrawer" :right="right" temporary fixed>
-      <v-list>
-        <v-list-item @click.native="right = !right">
-          <v-list-item-action>
-            <v-icon light>
-              mdi-repeat
-            </v-icon>
-          </v-list-item-action>
-          <v-list-item-title>Switch drawer (click me)</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer> -->
-
-    <!-- フッダー部 -->
-    <!-- <v-footer :fixed="fixed" app>
-      <span>&copy; 2019</span>
-    </v-footer> -->
-  </v-app>
 </template>
 
 <script>
 export default {
   data() {
     return {
-      clipped: true, // ？？？
-      drawer: false, // サイドメニューの表示表示
-      // fixed: false,
-      items: [
+      drawer: true, // サイドメニューの表示表示
+      clipped: true, // 画面にはめ込むか, true 固定
+      miniVariant: true, // サイドメニューの幅
+      title: 'Pigeon', // ヘッダ
+      routes: [
         {
           icon: 'mdi-apps',
           title: 'Welcome',
@@ -93,15 +49,16 @@ export default {
           to: '/inspire'
         },
         {
-          icon: 'mdi-chart-bubble',
+          icon: 'mdi-account-group',
           title: 'VTuber',
           to: '/account'
+        },
+        {
+          icon: 'mdi-dev-to',
+          title: 'Develop',
+          to: '/dev'
         }
-      ],
-      miniVariant: false, // サイドメニューの幅
-      // right: true,
-      // rightDrawer: false,
-      title: 'Pigeon' // ヘッダ
+      ]
     }
   }
 }
