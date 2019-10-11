@@ -54,6 +54,11 @@ export default {
           to: '/account'
         },
         {
+          icon: 'mdi-library-movie',
+          title: 'Video',
+          to: '/video'
+        },
+        {
           icon: 'mdi-dev-to',
           title: 'Develop',
           to: '/dev'

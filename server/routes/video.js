@@ -11,12 +11,18 @@ router.get(
   wrap(async (req, res) => {
     const { sort, order, page, limit, simple } = req.query // 統計系
     const channel = req.query.channel // 所属チャンネル xx,yy,zz
+    const text = req.query.text // 検索文字列
 
     // video
     const v = Video.find()
     if (channel) {
+      // チャンネル抽出
       const channels = channel.split(',')
       v.in('channel', channels)
+    }
+    if (text) {
+      // 文字列抽出
+      v.or([{ title: { $regex: new RegExp(text, 'i') } }])
     }
     v.sort({ [sort]: order })
     const videos = await Video.paginate(v, { page, limit })
