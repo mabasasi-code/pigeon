@@ -2,6 +2,8 @@
   div
     div
       v-text-field(label='search' v-model='searchText' @change='onSearch')
+    v-subheader
+      | {{ totalItems | numberFormat }}件 {{ requestTime / 1000 | numberFixed(2) }}秒
     v-layout(wrap)
       template(v-for='video in videos')
         v-hover.ma-2(v-slot:default='{ hover }')
@@ -10,15 +12,26 @@
 
             v-card-title
               div {{ video.title }}
-              //- span.grey--text.subtitle-1 ({{ .length }})
+
 </template>
 
 <script>
 export default {
+  filters: {
+    numberFormat(val) {
+      return val.toLocaleString()
+    },
+    numberFixed(val, digit) {
+      return val.toFixed(digit)
+    }
+  },
+
   data() {
     return {
       searchText: '',
-      videos: []
+      videos: [],
+      requestTime: 0,
+      totalItems: 0
     }
   },
 
@@ -31,8 +44,8 @@ export default {
       this.getDataFromApi()
     },
     async getDataFromApi() {
-      console.log('api', this.searchText)
-      const { items } = await this.$axios.$get('/video', {
+      const ts = new Date()
+      const { items, paginator } = await this.$axios.$get('/video', {
         params: {
           text: this.searchText,
           limit: 24,
@@ -40,6 +53,9 @@ export default {
           order: 'desc'
         }
       })
+      this.requestTime = new Date() - ts
+      this.totalItems = paginator.totalItems
+
       this.videos = items || []
     }
   }
