@@ -16,15 +16,10 @@
 </template>
 
 <script>
+import stringFilters from '~/mixins/stringFilters'
+
 export default {
-  filters: {
-    numberFormat(val) {
-      return val.toLocaleString()
-    },
-    numberFixed(val, digit) {
-      return val.toFixed(digit)
-    }
-  },
+  mixins: [stringFilters],
 
   data() {
     return {

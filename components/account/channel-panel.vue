@@ -26,12 +26,11 @@
 </template>
 
 <script>
+import stringFilters from '~/mixins/stringFilters'
+
 export default {
-  filters: {
-    numberFormat(val) {
-      return val.toLocaleString()
-    }
-  },
+  mixins: [stringFilters],
+
   props: {
     channel: {
       type: Object,
