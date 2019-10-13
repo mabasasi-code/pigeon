@@ -119,7 +119,7 @@ export default async (item, { doChain = false }) => {
     end_time: endTime,
     second: duration,
     url: `https://www.youtube.com/watch?v=${vid}`,
-    published_at: get(),
+    published_at: get(item, 'snippet.publishedAt'),
     'time.actual_start_time': get(item, 'liveStreamingDetails.actualStartTime'),
     'time.actual_end_time': get(item, 'liveStreamingDetails.actualEndTime'),
     'time.scheduled_start_time': get(
