@@ -23,7 +23,7 @@ export default async (item, { doChain = false }) => {
   const channelId = get(item, 'snippet.channelId')
 
   // タイムスタンプ
-  const nowTime = new Date() // TODO: フェッチ日時にする
+  const nowTime = moment() // TODO: フェッチ日時にする
 
   // サムネイル選択
   const thumbnail =
@@ -63,7 +63,7 @@ export default async (item, { doChain = false }) => {
       // 配信を開始した時間から取得した現在時刻 endは取得した現在時刻とする
       // (検索Query が拾えるように)
       startTime = get(item, 'liveStreamingDetails.actualStartTime')
-      endTime = moment().toISOString()
+      endTime = nowTime.toISOString()
       break
     case 'archive':
       // 実際に配信した時間を格納する(取得できない場合は投稿時間から経過時間分)
@@ -155,7 +155,7 @@ export default async (item, { doChain = false }) => {
   const videoStat = new VideoStat()
   videoStat.video = video._id
   videoStat.set(stat)
-  videoStat.save()
+  await videoStat.save()
 
   const vslog = `<${videoStat._id}>, ${videoStat.timestamp.toISOString()}`
   consola.trace(`> 'VideoStat' Create. ${vslog}`)

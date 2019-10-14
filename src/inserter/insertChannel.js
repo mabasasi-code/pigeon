@@ -89,7 +89,7 @@ export default async (item, { doChain = false }) => {
   const channelStat = new ChannelStat()
   channelStat.channel = channel._id
   channelStat.set(stat)
-  channelStat.save()
+  await channelStat.save()
 
   const cslog = `<${channelStat._id}>, ${channelStat.timestamp.toISOString()}`
   consola.trace(`> 'ChannelStat' Create. ${cslog}`)
