@@ -4,18 +4,27 @@ import { get } from 'object-path'
 import throwIf from '../lib/throwIf'
 
 import { Channel, Video, VideoStat } from '../../models'
+import deleteVideo from './deleteVideo'
 
-export default async (item, { doChain = false }) => {
-  // ID の取得
-  const vid = get(item, 'id')
-  consola.trace(`>> run '${vid}'`)
+export default async (item, videoID, { doChain = false }) => {
+  consola.trace(`>> run update '${videoID}'`)
+
+  // DB から Document の取得 (失敗時は null)
+  let video = await Video.findOne({ video_id: videoID })
+  const hasDatabase = video != null
+
+  // item が空でデータベースに存在するなら削除処理
+  if (item == null && hasDatabase) {
+    consola.trace('Pass to delete process!')
+    const res = await deleteVideo(item, videoID)
+    return res
+  }
+
+  // key と id の整合性の確認
+  throwIf(get(item, 'id') !== videoID, new Error('ID does not match.'))
 
   // item が空ならエラー
   throwIf(item == null, new Error('No item data!'))
-
-  // DB から Document の取得 (失敗時は null)
-  let video = await Video.findOne({ video_id: vid })
-  // const hasDatabase = video != null
 
   // データ整形 ///////////////////////////////////////////////////
 
@@ -109,7 +118,7 @@ export default async (item, { doChain = false }) => {
 
   // メインメタ情報
   const meta = {
-    video_id: vid,
+    video_id: videoID,
     title: get(item, 'snippet.title'),
     text: get(item, 'snippet.description'),
     image: thumbnail,
@@ -118,7 +127,7 @@ export default async (item, { doChain = false }) => {
     start_time: startTime,
     end_time: endTime,
     second: duration,
-    url: `https://www.youtube.com/watch?v=${vid}`,
+    url: `https://www.youtube.com/watch?v=${videoID}`,
     published_at: get(item, 'snippet.publishedAt'),
     'time.actual_start_time': get(item, 'liveStreamingDetails.actualStartTime'),
     'time.actual_end_time': get(item, 'liveStreamingDetails.actualEndTime'),

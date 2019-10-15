@@ -38,9 +38,10 @@ export default async (api, videoIDs = [], options = { doChain: false }) => {
     const mes2 = `res:${paginator.statusCode}, next:${paginator.hasNext()}`
     consola.debug(`[Update Video] Fetch ${items.length} items (${mes2})`)
 
-    // item 配列が存在しなかったらエラー、空ならスキップ
+    // item 配列が存在しなかったらエラー
     throwIf(!Array.isArray(items), new Error('Video data fetch error.'))
-    if (items.length === 0) continue
+    // item 配列が空ならエラー => 削除されていて空の可能性もある
+    // if (items.length === 0) continue
 
     // マッピング
     const map = arrayToMap(items, (item) => get(item, 'id'), paginator.useChunk)
@@ -74,7 +75,7 @@ const process = async (map, options) => {
 
   // 一つずつ保存する
   await seq.forEach(async (value, key, iseq) => {
-    const res = await insertVideo(value, options)
+    const res = await insertVideo(value, key, options)
     return res
   })
 

@@ -4,17 +4,20 @@ import throwIf from '../lib/throwIf'
 
 import { Account, Channel, ChannelStat } from '../../models'
 
-export default async (item, { doChain = false }) => {
-  // ID の取得
-  const cid = get(item, 'id')
-  consola.trace(`>> run '${cid}'`)
+export default async (item, channelID, { doChain = false }) => {
+  consola.trace(`>> run update '${channelID}'`)
+
+  // DB から Document の取得 (失敗時は null)
+  let channel = await Channel.findOne({ channel_id: channelID })
+  const hasDatabase = channel != null
+
+  // channel に削除処理は噛ませない
+
+  // key と id の整合性の確認
+  throwIf(get(item, 'id') !== channelID, new Error('ID does not match.'))
 
   // item が空ならエラー
   throwIf(item == null, new Error('No item data!'))
-
-  // DB から Document の取得 (失敗時は null)
-  let channel = await Channel.findOne({ channel_id: cid })
-  const hasDatabase = channel != null
 
   // データ整形 ///////////////////////////////////////////////////
 
@@ -34,13 +37,13 @@ export default async (item, { doChain = false }) => {
 
   // メインメタ情報
   const meta = {
-    channel_id: cid,
+    channel_id: channelID,
     service: 'youtube',
     title: get(item, 'snippet.title'),
     text: get(item, 'snippet.description'),
     image: thumbnail,
     playlist: get(item, 'contentDetails.relatedPlaylists.uploads'),
-    url: `https://www.youtube.com/channel/${cid}`,
+    url: `https://www.youtube.com/channel/${channelID}`,
     published_at: get(item, 'snippet.publishedAt')
   }
 
