@@ -8,6 +8,7 @@ import api from './lib/youtubeAPI'
 import updateChannel from './task/updateChannel'
 import updateVideo from './task/updateVideo'
 import collectPlaylistVideos from './task/collectPlaylistVideos'
+import collectFeedVideos from './task/collectFeedVideos'
 
 // ログレベルを設定
 consola.level = process.env.APP_DEBUG === 'true' ? 'trace' : 'info'
@@ -69,6 +70,29 @@ cli
 
       await forEachSeries(pids, async (pid) => {
         const vids = await collectPlaylistVideos(api, pid, { getAll })
+        await updateVideo(api, vids, { doChain })
+      })
+    })
+  })
+
+cli
+  .command('feed [...channel IDs]', 'Add or Update videos from feed.')
+  .option('-f, --force', 'Force Update.')
+  .action(async (items, options) => {
+    // const getAll = options.all // 全て取得
+    const doChain = options.force // 未実装
+
+    // TODO: IDの存在可否をチェックしていません
+    await wrap(async () => {
+      await database()
+
+      const q = Channel.find()
+      q.in('channel_id', items)
+      const channels = await q.exec()
+      const pids = channels.map((e) => e.channel_id).filter((e) => e)
+
+      await forEachSeries(pids, async (pid) => {
+        const vids = await collectFeedVideos(pid)
         await updateVideo(api, vids, { doChain })
       })
     })
