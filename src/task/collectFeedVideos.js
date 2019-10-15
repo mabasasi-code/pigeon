@@ -2,7 +2,6 @@ import consola from 'consola'
 import { get } from 'object-path'
 import feedParser from 'feedparser-promised'
 import throwIf from '../lib/throwIf'
-import arrayToMap from '../lib/arrayToMap'
 
 export default async (channelId, options = {}) => {
   consola.info(`[Collect feed] run '${channelId}' ...`)
