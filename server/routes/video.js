@@ -39,6 +39,7 @@ router.get(
     // video
     const v = Video.findOne()
     v.or([{ _id: id }, { video_id: id }])
+    v.populate('channel')
     const video = await v.exec()
 
     throwIf(!video, new Error('Data not founds.'))

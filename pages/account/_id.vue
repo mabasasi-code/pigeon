@@ -44,9 +44,11 @@ export default {
     async getDataFromApi() {
       const id = this.$nuxt.$route.params.id // account hash
 
+      // fetch account
       const account = await this.$axios.$get(`/account/${id}`)
       this.account = account
 
+      // fetch videos
       const channelKeys = account.channels.map((e) => e._id)
       const { items, paginator } = await this.$axios.$get(`/video`, {
         params: {

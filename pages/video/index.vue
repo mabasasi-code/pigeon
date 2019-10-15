@@ -7,7 +7,7 @@
     v-layout(wrap)
       template(v-for='video in videos')
         v-hover.ma-2(v-slot:default='{ hover }')
-          v-card.mx-auto(:elevation="hover ? 12 : 2" max-width='400px' :href='video.url' target='_blank')
+          v-card.mx-auto(:elevation="hover ? 12 : 2" max-width='400px' :to="{ name: 'video-id', params: { id: video._id }}")
             v-img(:src='video.image' height='200px')
 
             v-card-title
