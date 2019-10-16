@@ -1,58 +1,67 @@
-<template>
-  <div>
-    <nav
-      class="navbar header has-shadow is-primary"
-      role="navigation"
-      aria-label="main navigation"
-    >
-      <div class="navbar-brand">
-        <a class="navbar-item" href="/">
-          <img src="~assets/buefy.png" alt="Buefy" height="28" />
-        </a>
+<template lang="pug">
+  v-app(dark)
+    //- サイドメニュー部
+    v-navigation-drawer(
+      v-model='drawer'
+      :mini-variant='miniVariant'
+      :clipped='clipped'
+      mobile-break-point='960'
+      fixed
+      app)
+      v-list
+        v-list-item(v-for='(route, key) in routes' :key='key' :to='route.to' router)
+          v-list-item-action
+            v-icon {{ route.icon }}
+          v-list-item-content
+            v-list-item-title(v-text='route.title')
 
-        <div class="navbar-burger">
-          <span />
-          <span />
-          <span />
-        </div>
-      </div>
-    </nav>
+    //- ヘッダメニュー部
+    v-app-bar(:clipped-left='clipped' fixed app)
+      v-app-bar-nav-icon(@click.stop='drawer = !drawer')
+      v-btn(icon @click.stop='miniVariant = !miniVariant')
+        v-icon mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}
+      v-toolbar-title(v-text='title')
 
-    <section class="main-content columns">
-      <aside class="column is-2 section">
-        <p class="menu-label is-hidden-touch">
-          General
-        </p>
-        <ul class="menu-list">
-          <li v-for="(item, key) of items" :key="key">
-            <nuxt-link :to="item.to" exact-active-class="is-active">
-              <b-icon :icon="item.icon" /> {{ item.title }}
-            </nuxt-link>
-          </li>
-        </ul>
-      </aside>
+    //- メイン
+    v-content
+      v-container(fluid)
+        nuxt
 
-      <div class="container column is-10">
-        <nuxt />
-      </div>
-    </section>
-  </div>
 </template>
 
 <script>
 export default {
   data() {
     return {
-      items: [
+      drawer: true, // サイドメニューの表示表示
+      clipped: true, // 画面にはめ込むか, true 固定
+      miniVariant: true, // サイドメニューの幅
+      title: 'Pigeon', // ヘッダ
+      routes: [
         {
-          title: 'Home',
-          icon: 'home',
-          to: { name: 'index' }
+          icon: 'mdi-apps',
+          title: 'Welcome',
+          to: '/'
         },
         {
+          icon: 'mdi-chart-bubble',
           title: 'Inspire',
-          icon: 'lightbulb',
-          to: { name: 'inspire' }
+          to: '/inspire'
+        },
+        {
+          icon: 'mdi-account-group',
+          title: 'VTuber',
+          to: '/account'
+        },
+        {
+          icon: 'mdi-library-movie',
+          title: 'Video',
+          to: '/video'
+        },
+        {
+          icon: 'mdi-dev-to',
+          title: 'Develop',
+          to: '/dev'
         }
       ]
     }

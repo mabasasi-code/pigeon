@@ -1,3 +1,5 @@
+const colors = require('vuetify/es5/util/colors').default
+
 module.exports = {
   mode: 'universal',
   /*
@@ -23,11 +25,11 @@ module.exports = {
   /*
    ** Global CSS
    */
-  css: [],
+  css: [{ src: '~/assets/scss/index.scss', lang: 'scss' }],
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [],
+  plugins: ['~/plugins/axios.js'],
   /*
    ** Nuxt.js dev-modules
    */
@@ -39,17 +41,43 @@ module.exports = {
    ** Nuxt.js modules
    */
   modules: [
-    // Doc: https://buefy.github.io/#/documentation
-    'nuxt-buefy',
+    // Doc: https://vuetifyjs.com/ja/getting-started/quick-start
+    '@nuxtjs/vuetify',
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
+    // Doc: https://github.com/nuxt-community/moment-module
+    ['@nuxtjs/moment', ['ja']],
     '@nuxtjs/pwa'
   ],
   /*
    ** Axios module configuration
    ** See https://axios.nuxtjs.org/options
    */
-  axios: {},
+  axios: {
+    // See https://axios.nuxtjs.org/
+    prefix: '/api'
+  },
+  /*
+   ** vuetify module configuration
+   ** https://github.com/nuxt-community/vuetify-module
+   */
+  vuetify: {
+    customVariables: ['~/assets/variables.scss'],
+    theme: {
+      dark: false,
+      themes: {
+        dark: {
+          primary: colors.blue.darken2,
+          accent: colors.grey.darken3,
+          secondary: colors.amber.darken3,
+          info: colors.teal.lighten1,
+          warning: colors.amber.base,
+          error: colors.deepOrange.accent4,
+          success: colors.green.accent3
+        }
+      }
+    }
+  },
   /*
    ** Build configuration
    */
