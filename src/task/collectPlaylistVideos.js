@@ -6,7 +6,7 @@ import YoutubePaginator from '../lib/YoutubePaginator'
 import ItemSequencer from '../lib/itemSequencer'
 
 export default async (api, playlistId, options = { getAll: false }) => {
-  consola.info(`[Collect Playlist] run '${playlistId}' ...`)
+  consola.debug(`[Collect Playlist] run '${playlistId}' ...`)
 
   // もし idが空なら例外
   throwIf(!playlistId, new Error('Parameter error of ID.'))

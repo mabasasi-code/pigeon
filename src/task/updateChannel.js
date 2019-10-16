@@ -13,7 +13,7 @@ export default async (
   options = { doChain: false, skipExist: false }
 ) => {
   const len = channelIDs.length
-  consola.info(`[Update Channel] run ${len} items ...`)
+  consola.debug(`[Update Channel] run ${len} items ...`)
 
   // もし id配列が空なら例外
   throwIf(!Array.isArray(channelIDs), new Error('Parameter error of IDs.'))

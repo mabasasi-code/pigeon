@@ -4,7 +4,7 @@ import feedParser from 'feedparser-promised'
 import throwIf from '../lib/throwIf'
 
 export default async (channelId, options = {}) => {
-  consola.info(`[Collect feed] run '${channelId}' ...`)
+  consola.debug(`[Collect feed] run '${channelId}' ...`)
 
   // もし idが空なら例外
   throwIf(!channelId, new Error('Parameter error of ID.'))

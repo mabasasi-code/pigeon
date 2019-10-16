@@ -13,7 +13,7 @@ export default async (
   options = { doChain: false, skipExist: false }
 ) => {
   const len = videoIDs.length
-  consola.info(`[Update Video] run ${len} items ...`)
+  consola.debug(`[Update Video] run ${len} items ...`)
 
   // もし id配列が空なら例外
   throwIf(!Array.isArray(videoIDs), new Error('Parameter error of IDs.'))
