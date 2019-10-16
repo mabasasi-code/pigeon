@@ -11,9 +11,6 @@ import collectPlaylistVideos from './task/collectPlaylistVideos'
 import collectFeedVideos from './task/collectFeedVideos'
 import cron from './cron'
 
-// ログレベルを設定
-consola.level = process.env.APP_DEBUG === 'true' ? 'trace' : 'info'
-
 // 簡易 wrapper
 const wrap = async (callback) => {
   try {

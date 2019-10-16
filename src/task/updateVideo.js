@@ -10,7 +10,7 @@ import insertVideo from '../inserter/insertVideo'
 export default async (
   api,
   videoIDs = [],
-  options = { doChain: false, skipExist: false }
+  options = { doChain: false, skipExist: false, skipUpcoming: false }
 ) => {
   const len = videoIDs.length
   consola.debug(`[Update Video] run ${len} items ...`)
