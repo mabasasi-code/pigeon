@@ -5,6 +5,7 @@ const app = express()
 
 const config = require('../nuxt.config.js')
 const database = require('../models').default
+const batch = require('../src/cron')
 const routes = require('./routes')
 
 // Import and Set Nuxt.js options
@@ -40,5 +41,14 @@ async function start() {
     message: `Server listening on http://${host}:${port}`,
     badge: true
   })
+
+  // Awake batch scheduler
+  if (process.env.RUN_BATCH === 'true') {
+    await batch()
+    consola.ready({
+      message: 'Run update batch.',
+      badge: true
+    })
+  }
 }
 start()
