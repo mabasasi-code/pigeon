@@ -168,7 +168,8 @@ export default async (
   await video.save()
 
   const vlog = `<${video._id}>, ${video.video_id}, ${video.title}`
-  consola.trace(`> 'Video' Create. ${vlog}`)
+  const vCmd = hasDatabase ? 'Update' : 'Create'
+  consola.trace(`> 'Video' ${vCmd}. ${vlog}`)
 
   // ■ Video-Stat を作成
   const videoStat = new VideoStat()

@@ -9,6 +9,7 @@ import updateChannel from './task/updateChannel'
 import updateVideo from './task/updateVideo'
 import collectPlaylistVideos from './task/collectPlaylistVideos'
 import collectFeedVideos from './task/collectFeedVideos'
+import cron from './cron'
 
 // ログレベルを設定
 consola.level = process.env.APP_DEBUG === 'true' ? 'trace' : 'info'
@@ -122,6 +123,15 @@ cli
       consola.info(res)
     })
   })
+
+/// ////////////////////////////////////////////////////////////
+
+cli.command('[...args]', 'Run cron.').action(async (args, options) => {
+  // cron を実行
+  // 終了は Ctrl + C
+  await cron()
+  process.exit(0)
+})
 
 cli.help()
 cli.version()
