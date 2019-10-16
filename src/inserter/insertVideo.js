@@ -9,7 +9,7 @@ import deleteVideo from './deleteVideo'
 export default async (
   item,
   videoID,
-  { doChain = false, skipExist = false }
+  { doChain = false, skipExist = false, skipUpcoming = false }
 ) => {
   consola.trace(`>> run update '${videoID}'`)
 
@@ -152,6 +152,12 @@ export default async (
   }
 
   // DB 保存処理 //////////////////////////////////////////////////
+
+  // skipUpcoming 時、upcomingなら何もしない
+  if (skipUpcoming && meta.type === 'upcoming') {
+    consola.trace(`> Skip because it upcoming.`)
+    return video
+  }
 
   // ■ Channel を取得してくる (無かったら null)
   const channel = await Channel.findOne({ channel_id: channelId })

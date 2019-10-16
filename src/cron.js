@@ -48,13 +48,16 @@ const batch = async (api, date) => {
       await updateVideo(api, vids, { skipExist: false })
     }
 
-    // 5分ごとに待機中の video を確認する、保存は一時間毎？
+    // 5分ごとに待機中の video を確認する、5分のときは確定保存
     if (minute % 5 === 0) {
       consola.info('[cron] run Update upcoming videos ...')
       const q = { type: { $in: ['upcoming'] } }
       const videos = await Video.find(q, ['video_id'])
       const vids = videos.map((e) => e.video_id).filter((e) => e)
-      await updateVideo(api, vids, { skipExist: minute === 0 })
+      await updateVideo(api, vids, {
+        skipExist: false,
+        skipUpcoming: minute === 5
+      })
     }
 
     // 15分ごとに feed を検索する (5, 20, 35, 50)
