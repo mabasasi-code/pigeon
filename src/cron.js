@@ -56,7 +56,7 @@ const batch = async (api, date) => {
       const vids = videos.map((e) => e.video_id).filter((e) => e)
       await updateVideo(api, vids, {
         skipExist: false,
-        skipUpcoming: minute === 5
+        skipUpcoming: minute !== 5
       })
     }
 
