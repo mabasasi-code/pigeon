@@ -7,7 +7,11 @@ import ItemSequencer from '../lib/itemSequencer'
 
 import insertChannel from '../inserter/insertChannel'
 
-export default async (api, channelIDs = [], options = { doChain: false }) => {
+export default async (
+  api,
+  channelIDs = [],
+  options = { doChain: false, skipExist: false }
+) => {
   const len = channelIDs.length
   consola.info(`[Update Youtube] run ${len} items ...`)
 

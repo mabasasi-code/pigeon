@@ -29,34 +29,40 @@ const wrap = async (callback) => {
 const cli = cac()
 cli
   .command('channel [...channel IDs]', 'Add or Update channels.')
+  .option('-s, --skip', 'Skip when exist.')
   .option('-f, --force', 'Force Update.')
   .action(async (items, options) => {
+    const skipExist = options.skip // 存在する時スキップする
     const doChain = options.force // 連鎖取得
 
     await wrap(async () => {
       await database()
-      await updateChannel(api, items, { doChain })
+      await updateChannel(api, items, { doChain, skipExist })
     })
   })
 
 cli
   .command('video [...video IDs]', 'Add or Update videos.')
+  .option('-s, --skip', 'Skip when exist.')
   .option('-f, --force', 'Force Update.')
   .action(async (items, options) => {
+    const skipExist = options.skip // 存在する時スキップする
     const doChain = options.force // 未実装
 
     await wrap(async () => {
       await database()
-      await updateVideo(api, items, { doChain })
+      await updateVideo(api, items, { doChain, skipExist })
     })
   })
 
 cli
   .command('playlist [...channel IDs]', 'Add or Update videos from playlist.')
   .option('-a, --all', 'Get all videos.')
+  .option('-s, --skip', 'Skip when exist.')
   .option('-f, --force', 'Force Update.')
   .action(async (items, options) => {
     const getAll = options.all // 全て取得
+    const skipExist = options.skip // 存在する時スキップする
     const doChain = options.force // 未実装
 
     // TODO: IDの存在可否をチェックしていません
@@ -70,16 +76,18 @@ cli
 
       await forEachSeries(pids, async (pid) => {
         const vids = await collectPlaylistVideos(api, pid, { getAll })
-        await updateVideo(api, vids, { doChain })
+        await updateVideo(api, vids, { doChain, skipExist })
       })
     })
   })
 
 cli
   .command('feed [...channel IDs]', 'Add or Update videos from feed.')
+  .option('-s, --skip', 'Skip when exist.')
   .option('-f, --force', 'Force Update.')
   .action(async (items, options) => {
     // const getAll = options.all // 全て取得
+    const skipExist = options.skip // 存在する時スキップする
     const doChain = options.force // 未実装
 
     // TODO: IDの存在可否をチェックしていません
@@ -93,7 +101,7 @@ cli
 
       await forEachSeries(pids, async (pid) => {
         const vids = await collectFeedVideos(pid)
-        await updateVideo(api, vids, { doChain })
+        await updateVideo(api, vids, { doChain, skipExist })
       })
     })
   })

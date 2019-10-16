@@ -7,7 +7,11 @@ import ItemSequencer from '../lib/itemSequencer'
 
 import insertVideo from '../inserter/insertVideo'
 
-export default async (api, videoIDs = [], options = { doChain: false }) => {
+export default async (
+  api,
+  videoIDs = [],
+  options = { doChain: false, skipExist: false }
+) => {
   const len = videoIDs.length
   consola.info(`[Update Video] run ${len} items ...`)
 

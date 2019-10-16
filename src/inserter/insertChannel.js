@@ -4,12 +4,22 @@ import throwIf from '../lib/throwIf'
 
 import { Account, Channel, ChannelStat } from '../../models'
 
-export default async (item, channelID, { doChain = false }) => {
+export default async (
+  item,
+  channelID,
+  { doChain = false, skipExist = false }
+) => {
   consola.trace(`>> run update '${channelID}'`)
 
   // DB から Document の取得 (失敗時は null)
   let channel = await Channel.findOne({ channel_id: channelID })
   const hasDatabase = channel != null
+
+  // skipExist 時、DBに存在するなら何もしない
+  if (skipExist && hasDatabase) {
+    consola.trace(`> Skip because it exist.`)
+    return channel
+  }
 
   // channel に削除処理は噛ませない
 

@@ -6,16 +6,26 @@ import throwIf from '../lib/throwIf'
 import { Channel, Video, VideoStat } from '../../models'
 import deleteVideo from './deleteVideo'
 
-export default async (item, videoID, { doChain = false }) => {
+export default async (
+  item,
+  videoID,
+  { doChain = false, skipExist = false }
+) => {
   consola.trace(`>> run update '${videoID}'`)
 
   // DB から Document の取得 (失敗時は null)
   let video = await Video.findOne({ video_id: videoID })
   const hasDatabase = video != null
 
+  // skipExist 時、DBに存在するなら何もしない
+  if (skipExist && hasDatabase) {
+    consola.trace(`> Skip because it exist.`)
+    return video
+  }
+
   // item が空でデータベースに存在するなら削除処理
   if (item == null && hasDatabase) {
-    consola.trace('Pass to delete process!')
+    consola.trace('> Pass to delete process.')
     const res = await deleteVideo(item, videoID)
     return res
   }
