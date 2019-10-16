@@ -127,7 +127,6 @@ cli.command('[...args]', 'Run cron.').action(async (args, options) => {
   // cron を実行
   // 終了は Ctrl + C
   await cron()
-  process.exit(0)
 })
 
 cli.help()

@@ -15,10 +15,10 @@ export default async () => {
   consola.start('[cron] Initialization.')
   await database()
 
-  await batch(api, moment('2019-10-16 10:00'))
-  // schedule.scheduleJob('*/5 * * * *', async function(fireDate) {
-  //   await batch(api, moment(fireDate))
-  // })
+  // await batch(api, moment('2019-10-16 10:00'))
+  schedule.scheduleJob('*/5 * * * *', async function(fireDate) {
+    await batch(api, moment(fireDate))
+  })
 }
 
 /// ////////////////////////////////////////////////////////////
