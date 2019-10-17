@@ -36,11 +36,11 @@ export default {
         const mm = mom.minutes()
         const ss = mom.seconds()
 
-        const th = ('' + hh).padStart(2, '0')
+        // const th = ('' + hh).padStart(2, '0')
         const tm = ('' + mm).padStart(2, '0')
         const ts = ('' + ss).padStart(2, '0')
 
-        return hh ? `${th}:${tm}:${ts}` : `${tm}:${ts}`
+        return hh ? `${hh}:${tm}:${ts}` : `${mm}:${ts}`
       }
       return '-'
     }

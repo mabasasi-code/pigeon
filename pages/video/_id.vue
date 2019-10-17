@@ -1,16 +1,6 @@
 <template lang="pug">
   div
-    v-card
-      v-list-item
-        //- v-list-item-avatar(tile size='80' color='grey')
-        //- v-list-item-avatar
-        //-   v-img(:src='video.image' width='300' :aspect-ratio='16/9+0.001')
-        div
-          v-img(:src='video.image' width='300' :aspect-ratio='16/9+0.001')
-        v-list-item-content
-          div.overline.mb-4 OVERLINE
-          v-list-item-title.headline.mb-1 {{ video.title }}
-          v-list-item-subtitle Greyhound divisely hello coldly fonwderfully
+    VideoPanel(:video='video')
 
     v-row
       v-col
@@ -28,10 +18,11 @@
 </template>
 
 <script>
+import VideoPanel from '~/components/VideoPanel.vue'
 import DetailPanel from '~/components/video/detail-panel.vue'
 
 export default {
-  components: { DetailPanel },
+  components: { VideoPanel, DetailPanel },
 
   data() {
     return {

@@ -2,23 +2,25 @@
   div
     div
       v-text-field(label='search' v-model='searchText' @change='onSearch')
+
     v-subheader
       | {{ totalItems | numberFormat }}件 {{ requestTime / 1000 | numberFixed(2) }}秒
-    v-layout(wrap)
-      template(v-for='video in videos')
-        v-hover.ma-2(v-slot:default='{ hover }')
-          v-card.mx-auto(:elevation="hover ? 12 : 2" max-width='400px' :to="{ name: 'video-id', params: { id: video._id }}")
-            v-img(:src='video.image' height='200px')
 
-            v-card-title
-              div {{ video.title }}
+    v-row.fill-height(no-gutters)
+      template(v-for='(video, key) in videos' :keys='key')
+        v-col.flex-grow-1.ma-2(cols='12')
+          VideoPanel(:video='video')
 
 </template>
 
 <script>
+import VideoPanel from '~/components/VideoPanel'
+
 import stringFilters from '~/mixins/stringFilters'
 
 export default {
+  components: { VideoPanel },
+
   mixins: [stringFilters],
 
   data() {
