@@ -116,14 +116,14 @@ export default async (
   }
 
   // ライブ中の統計追加
-  const cv = get(item, 'liveStreamingDetails.concurrentViewers')
-  if (cv) {
+  const current = get(item, 'liveStreamingDetails.concurrentViewers')
+  if (current) {
     // 開始時間からの時差
     const start = get(item, 'liveStreamingDetails.actualStartTime')
     const diffSec = nowTime.diff(moment(start), 'seconds')
 
     stat.seconds = diffSec
-    stat.concurrent_viewers = cv
+    stat.current = current
   }
 
   // メインメタ情報
