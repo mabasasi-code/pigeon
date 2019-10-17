@@ -1,46 +1,45 @@
 <template lang="pug">
-  v-hover.ma-2(v-slot:default='{ hover }')
+  v-hover.ma-2(v-slot:default='{ hover }' v-resize='onResize')
     v-card.mx-auto(
       :elevation="hover ? 12 : 2"
       :to="{ name: 'video-id', params: { id: video._id }}"
     )
       v-row(no-gutters)
-        v-col.flex-grow-0.flex-xs-grow-1.flex-shrink-0(cols='12' sm='auto')
+        v-col(v-bind='imageCols')
           v-row.fill-height.black(no-gutters align='center' justify='center')
-            v-img(:src='video.image' :aspect-ratio='16/9+0.004' width='300' max-width='300')
+            v-img(:src='video.image' :aspect-ratio='16/9+0.004' :width='imageWidth' :max-width='imageWidth')
 
-        v-col.flex-grow-1.flex-shrink-1(cols='12' sm='1' style='max-width: 100%;')
-          div.my-2
+        v-col.my-2(v-bind='contentCols')
+          div
             v-chip.mx-2(label small v-bind='tagBindObjects(video.status)') {{ video.status | localeStatus }}
             v-chip.mx-2(label small v-bind='tagBindObjects(video.type)') {{ video.type | localeType }}
-          
-            div.ma-2.title.text--primary {{ video.title }}
+        
+          div.ma-2.title.text--primary {{ video.title }}
+          v-row.mx-2.align-end(v-if='video.stats')
+            //- second がない場合は start と現在時刻を対比させる
+            v-col.mx-1.pa-0
+              v-icon mdi-movie
+              span.ml-1.body-2(v-if='video.second')  {{ video.second | durationFormat }}
+              span.ml-1.body-2(v-else)  {{ video.start_time | timeToNow }}
 
-            v-row.mx-2(v-if='video.stats')
-              //- second がない場合は start と現在時刻を対比させる
-              v-col.mx-1.pa-0
-                v-icon mdi-movie
-                span.ml-1(v-if='video.second')  {{ video.second | durationFormat }}
-                span.ml-1(v-else)  {{ video.start_time | timeToNow }}
-
-              v-col.mx-1.pa-0
-                v-icon mdi-play
-                span.ml-1 {{ video.stats.now.view | numberFormat }}
-              v-col.mx-1.pa-0
-                v-icon mdi-account-group
-                span.ml-1 {{ video.stats.now.current | numberFormat }}
-              //- v-col
-              //-   v-icon mdi-thumb-up
-              //-   span {{ video.stats.now.like | numberFormat }}
-              //- v-col
-              //-   v-icon mdi-thumb-down
-              //-   span {{ video.stats.now.bad | numberFormat }}
-              //- v-col
-              //-   v-icon mdi-star
-              //-   span {{ video.stats.now.fav | numberFormat }}
-              //- v-col
-              //-   v-icon mdi-message-reply
-              //-   span {{ video.stats.now.comment | numberFormat }}
+            v-col.mx-1.pa-0
+              v-icon mdi-play
+              span.ml-1.body-2 {{ video.stats.now.view | numberFormat }}
+            v-col.mx-1.pa-0
+              v-icon mdi-account-group
+              span.ml-1.body-2 {{ video.stats.now.current | numberFormat }}
+            //- v-col
+            //-   v-icon mdi-thumb-up
+            //-   span {{ video.stats.now.like | numberFormat }}
+            //- v-col
+            //-   v-icon mdi-thumb-down
+            //-   span {{ video.stats.now.bad | numberFormat }}
+            //- v-col
+            //-   v-icon mdi-star
+            //-   span {{ video.stats.now.fav | numberFormat }}
+            //- v-col
+            //-   v-icon mdi-message-reply
+            //-   span {{ video.stats.now.comment | numberFormat }}
 
 </template>
 
@@ -86,6 +85,49 @@ export default {
     video: {
       type: Object,
       default: () => {}
+    },
+    imageWidth: {
+      type: Number,
+      default: () => 300
+    },
+    breakPoint: {
+      type: Number,
+      default: () => 600
+    }
+  },
+
+  data() {
+    return {
+      clientWidth: 0,
+      clientHeight: 0
+    }
+  },
+
+  computed: {
+    imageCols() {
+      // - v-col.flex-grow-0.flex-xs-grow-1.flex-shrink-0(cols='12' sm='auto')
+      if (this.clientWidth < this.breakPoint) {
+        // 縦長表示
+        return { cols: '12', class: ['flex-grow-1', 'flex-shrink-0'] }
+      } else {
+        // 横長表示
+        return { cols: 'auto', class: ['flex-grow-0', 'flex-shrink-0'] }
+      }
+    },
+
+    contentCols() {
+      // - v-col.flex-grow-1.flex-shrink-1(cols='12' sm='1' style='max-width: 100%;')
+      if (this.clientWidth < this.breakPoint) {
+        // 縦長表示
+        return { cols: 'auto', class: ['flex-grow-1', 'flex-shrink-1'] }
+      } else {
+        // 横長表示
+        return {
+          cols: '1',
+          class: ['flex-grow-1', 'flex-shrink-1'],
+          style: { 'max-width': '100%' }
+        }
+      }
     }
   },
 
@@ -108,6 +150,13 @@ export default {
         case 'video':
           return { color: 'blue', textColor: 'white' }
       }
+    },
+
+    onResize(val) {
+      // 自身のサイズを指定
+      const dom = this.$el
+      this.clientWidth = parseInt(dom.clientWidth)
+      this.clientHeight = parseInt(dom.clientHeight)
     }
   }
 }

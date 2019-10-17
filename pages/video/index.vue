@@ -8,8 +8,8 @@
 
     v-row.fill-height(no-gutters)
       template(v-for='(video, key) in videos' :keys='key')
-        v-col.flex-grow-1.ma-2(cols='12')
-          VideoPanel(:video='video')
+        v-col.flex-grow-1.ma-2
+          VideoPanel.fill-height(:video='video', :breakPoint='674')
 
 </template>
 
