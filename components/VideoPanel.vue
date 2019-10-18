@@ -56,7 +56,7 @@ export default {
           return '公開'
         case 'unlisted':
           return '限定公開'
-        case 'private':
+        case 'delete':
           return '非公開'
         default:
           return val
@@ -151,7 +151,7 @@ export default {
           return { color: 'blue', textColor: 'white' }
         case 'unlisted':
           return { color: 'red', textColor: 'white' }
-        case 'private':
+        case 'delete':
           return { color: 'black', textColor: 'white' }
 
         case 'upcoming':

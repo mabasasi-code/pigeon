@@ -25,7 +25,7 @@ export default async (item, videoID, options) => {
   // メインメタ情報
   const meta = {
     video_id: videoID,
-    type: 'delete'
+    status: 'delete'
   }
 
   // ライブ中なら archive と終了時刻を付与する
