@@ -62,4 +62,20 @@ router.get(
   })
 )
 
+router.get(
+  '/:id/record',
+  wrap(async (req, res) => {
+    const id = req.params.id // video_id
+    const { sort, order, page, limit, simple } = req.query // 統計系
+
+    // video-stat
+    const s = VideoStat.find()
+    s.where('video').equals(id)
+    s.sort({ [sort || 'timestamp']: order || '1' })
+    const stats = await VideoStat.paginate(s, { page, limit })
+
+    res.status(200).json(simple ? stats.items : stats)
+  })
+)
+
 export default router

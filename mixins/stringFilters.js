@@ -3,6 +3,9 @@ import moment from 'moment'
 export default {
   filters: {
     numberFormat(val) {
+      if (val === 0) {
+        return 0
+      }
       if (val) {
         return val.toLocaleString()
       }

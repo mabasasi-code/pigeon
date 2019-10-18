@@ -11,8 +11,14 @@
       v-col
         v-card
           v-card-text
-            div description
-            p.text--primary.mt-2(style='white-space: pre') {{ video.text }}
+            div record
+            RecordPanel(:video='video')
+
+      //- v-col
+      //-   v-card
+      //-     v-card-text
+      //-       div description
+      //-       p.text--primary.mt-2(style='white-space: pre') {{ video.text }}
       
     code {{ video }}
 </template>
@@ -20,9 +26,10 @@
 <script>
 import VideoPanel from '~/components/VideoPanel.vue'
 import DetailPanel from '~/components/video/detail-panel.vue'
+import RecordPanel from '~/components/video/record-panel.vue'
 
 export default {
-  components: { VideoPanel, DetailPanel },
+  components: { VideoPanel, DetailPanel, RecordPanel },
 
   data() {
     return {

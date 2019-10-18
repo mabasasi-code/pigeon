@@ -180,8 +180,6 @@ export default {
       const dom = this.$el
       this.clientWidth = parseInt(dom.clientWidth)
       this.clientHeight = parseInt(dom.clientHeight)
-
-      console.log(this.clientWidth)
     }
   }
 }
