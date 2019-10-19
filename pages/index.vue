@@ -1,29 +1,22 @@
 <template lang="pug">
   div
     div.display-1 > 配信中
-    v-row.fill-height(no-gutters)
-      template(v-for='(video, key) in liveVideos' :keys='key')
-        v-col.flex-grow-1.ma-2(cols='12')
-          VideoPanel.fill-height(:video='video' :imageWidth='320')
+    VideoList(:videos='liveVideos' :imageWidth='200')
     
     v-divider.ma-4
 
     div.display-1 > 予定
-    v-row.fill-height(no-gutters)
-      template(v-for='(video, key) in scheduleVideos' :keys='key')
-        v-col.flex-grow-1.ma-2(cols='12')
-          VideoPanel.fill-height(:video='video' :imageWidth='200')
+    VideoList(:videos='scheduleVideos' :imageWidth='200')
 
 </template>
 
 <script>
 import moment from 'moment'
-import VideoPanel from '~/components/VideoPanel'
-
 import stringFilters from '~/mixins/stringFilters'
+import VideoList from '~/components/VideoList'
 
 export default {
-  components: { VideoPanel },
+  components: { VideoList },
 
   mixins: [stringFilters],
 

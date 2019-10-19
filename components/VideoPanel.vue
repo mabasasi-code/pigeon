@@ -1,13 +1,14 @@
 <template lang="pug">
-  v-hover.ma-2(v-slot:default='{ hover }' v-resize='onResize')
+  v-hover(v-slot:default='{ hover }' v-resize='onResize')
     v-card.mx-auto(
+      :class="{ 'fill-height': isCollapse }"
       :elevation="hover ? 12 : 2"
       :to="{ name: 'video-id', params: { id: video._id }}"
       ref='card'
     )
-      v-row(no-gutters :class="{ 'fill-height': !isBreak }")
+      v-row(no-gutters)
         v-col(v-bind='imageCols')
-          v-row.black(no-gutters :class="{ 'fill-height': !isBreak }" align='center' justify='center')
+          v-row.black(no-gutters align='center' justify='center')
             v-img(:src='video.image' :aspect-ratio='imageAspectRecio' :width='imageWidth' :max-width='imageWidth')
 
         v-col.my-2(v-bind='contentCols')
@@ -103,20 +104,20 @@ export default {
 
   data() {
     return {
-      clientWidth: 0,
-      clientHeight: 0
+      width: 0
+      // height: 0
     }
   },
 
   computed: {
-    isBreak() {
+    isCollapse() {
       // true で縦長表示
-      return this.clientWidth < this.breakPoint
+      return this.width < this.breakPoint
     },
 
     imageCols() {
       // - v-col.flex-grow-0.flex-xs-grow-1.flex-shrink-0(cols='12' sm='auto')
-      if (this.isBreak) {
+      if (this.isCollapse) {
         // 縦長表示
         return { cols: '12', class: ['flex-grow-1', 'flex-shrink-0'] }
       } else {
@@ -126,7 +127,7 @@ export default {
     },
     contentCols() {
       // - v-col.flex-grow-1.flex-shrink-1(cols='12' sm='1' style='max-width: 100%;')
-      if (this.isBreak) {
+      if (this.isCollapse) {
         // 縦長表示
         return { cols: 'auto', class: ['flex-grow-1', 'flex-shrink-1'] }
       } else {
@@ -167,8 +168,8 @@ export default {
 
     resetOnResize() {
       // 外部から実行する際はリセットを噛ます
-      this.clientWidth = 0
-      this.clientHeight = 0
+      this.width = 0
+      this.height = 0
 
       this.$nextTick(() => {
         this.onResize()
@@ -178,8 +179,8 @@ export default {
     onResize() {
       // 自身のサイズを指定
       const dom = this.$el
-      this.clientWidth = parseInt(dom.clientWidth)
-      this.clientHeight = parseInt(dom.clientHeight)
+      this.width = parseInt(dom.clientWidth)
+      // this.height = parseInt(dom.height)
     }
   }
 }

@@ -9,26 +9,22 @@
           span {{ totalItems | numberFormat }}件 {{ requestTime / 1000 | numberFixed(2) }}秒
         v-spacer
         v-col(cols='auto')
-          v-btn-toggle(v-model='listMode' color='green' mandatory @change='callResize')
+          v-btn-toggle(v-model='listMode' color='green' mandatory)
             v-btn(small)
               v-icon(small) mdi-view-grid
             v-btn(small)
               v-icon(small) mdi-view-list
 
-    v-row.fill-height(no-gutters)
-      template(v-for='(video, key) in videos' :keys='key')
-        v-col.flex-grow-1.ma-2(:cols='listMode === 1 ? 12 : 0')
-          VideoPanel.fill-height(ref='videoPanel' :video='video')
+    VideoList(:videos='videos' :showGrid='listMode === 0' :imageWidth='320')
 
 </template>
 
 <script>
-import VideoPanel from '~/components/VideoPanel'
-
 import stringFilters from '~/mixins/stringFilters'
+import VideoList from '~/components/VideoList'
 
 export default {
-  components: { VideoPanel },
+  components: { VideoList },
 
   mixins: [stringFilters],
 
@@ -44,7 +40,7 @@ export default {
 
   async mounted() {
     await this.getDataFromApi()
-    this.callResize()
+    // this.callResize()
   },
 
   methods: {
@@ -65,14 +61,6 @@ export default {
       this.totalItems = paginator.totalItems
 
       this.videos = items || []
-    },
-
-    callResize() {
-      // TODO: できれば component 内部で resize 検知をしたい
-      const panels = this.$refs.videoPanel
-      for (const panel of panels) {
-        panel.resetOnResize()
-      }
     }
   }
 }
