@@ -8,7 +8,7 @@
     )
       v-row(no-gutters)
         v-col(v-bind='imageCols')
-          v-row.black(no-gutters align='center' justify='center')
+          v-row.black(no-gutters :class="{ 'fill-height': !isCollapse }" align='center' justify='center')
             v-img(:src='video.image' :aspect-ratio='imageAspectRecio' :width='imageWidth' :max-width='imageWidth')
 
         v-col.my-2(v-bind='contentCols')
