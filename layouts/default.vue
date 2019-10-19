@@ -39,14 +39,9 @@ export default {
       title: 'Pigeon', // ヘッダ
       routes: [
         {
-          icon: 'mdi-apps',
-          title: 'Welcome',
+          icon: 'mdi-home',
+          title: 'Home',
           to: '/'
-        },
-        {
-          icon: 'mdi-chart-bubble',
-          title: 'Inspire',
-          to: '/inspire'
         },
         {
           icon: 'mdi-account-group',
