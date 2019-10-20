@@ -9,7 +9,7 @@
           span {{ totalItems | numberFormat }}件 {{ requestTime / 1000 | numberFixed(2) }}秒
         v-spacer
         v-col(cols='auto')
-          v-btn-toggle(v-model='listMode' color='green' mandatory)
+          v-btn-toggle(v-model='listMode' mandatory color='primary')
             v-btn(small)
               v-icon(small) mdi-view-grid
             v-btn(small)
@@ -33,8 +33,8 @@ export default {
       searchText: '',
       listMode: 0, // 0: grid, 1:list
       videos: [],
-      requestTime: 0,
-      totalItems: 0
+      requestTime: 0, // 実処理時間
+      totalItems: 0 // 全件数
     }
   },
 
@@ -49,7 +49,9 @@ export default {
     },
     async getDataFromApi() {
       const ts = new Date()
-      const { items, paginator } = await this.$axios.$get('/video', {
+
+      // 全てのビデオを直近のもの順で
+      const { items: videos, paginator } = await this.$axios.$get('/video', {
         params: {
           text: this.searchText,
           limit: 24,
@@ -57,10 +59,11 @@ export default {
           order: 'desc'
         }
       })
+      this.videos = videos || []
+
+      // 統計保存
       this.requestTime = new Date() - ts
       this.totalItems = paginator.totalItems
-
-      this.videos = items || []
     }
   }
 }
