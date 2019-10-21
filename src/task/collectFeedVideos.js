@@ -7,7 +7,7 @@ export default async (channelId, options = {}) => {
   // もし idが空なら例外
   throwIf(!channelId, new Error('Parameter error of ID.'))
 
-  consola.debug(`[Collect feed] run '${channelId}' ...`)
+  consola.debug(`[Collect feed] run '${channelId}'.`)
 
   // URL を叩く
   const items = await fetchFeed(channelId)
@@ -18,8 +18,9 @@ export default async (channelId, options = {}) => {
   const videoIds = items.map((e) => get(e, 'yt:videoid.#')).filter((e) => e)
 
   // 結果表示
+  // TODO: response code は 200 固定 (取得方法が分からないため)
   consola.info(
-    `[Collect feed] Finish! Get ${videoIds.length} items. (id:'${channelId}')`
+    `[Collect feed] Finish! Get ${videoIds.length} items. (res: 200, id:'${channelId}')`
   )
 
   return videoIds

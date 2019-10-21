@@ -21,7 +21,7 @@ export default async (
     return
   }
 
-  consola.debug(`[Update Video] run ${videoIDs.length} items ...`)
+  consola.debug(`[Update Video] run ${videoIDs.length} items.`)
 
   // API の処理を実装
   const paginator = new YoutubePaginator(

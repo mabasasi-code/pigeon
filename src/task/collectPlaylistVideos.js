@@ -9,7 +9,7 @@ export default async (api, playlistId, options = { getAll: false }) => {
   // もし idが空なら例外
   throwIf(!playlistId, new Error('Parameter error of ID.'))
 
-  consola.debug(`[Collect Playlist] run '${playlistId}' ...`)
+  consola.debug(`[Collect Playlist] run '${playlistId}'.`)
 
   // API の処理を実装
   // TODO: とりあえず playlistID を外部から強制設定するようにした
