@@ -4,10 +4,10 @@ import feedParser from 'feedparser-promised'
 import throwIf from '../lib/throwIf'
 
 export default async (channelId, options = {}) => {
-  consola.debug(`[Collect feed] run '${channelId}' ...`)
-
   // もし idが空なら例外
   throwIf(!channelId, new Error('Parameter error of ID.'))
+
+  consola.debug(`[Collect feed] run '${channelId}' ...`)
 
   // URL を叩く
   const items = await fetchFeed(channelId)
@@ -18,7 +18,9 @@ export default async (channelId, options = {}) => {
   const videoIds = items.map((e) => get(e, 'yt:videoid.#')).filter((e) => e)
 
   // 結果表示
-  consola.info(`[Collect feed] Finish! Get ${videoIds.length} items.`)
+  consola.info(
+    `[Collect feed] Finish! Get ${videoIds.length} items. (id:'${channelId}')`
+  )
 
   return videoIds
 }

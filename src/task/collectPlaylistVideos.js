@@ -6,10 +6,10 @@ import YoutubePaginator from '../lib/YoutubePaginator'
 import ItemSequencer from '../lib/itemSequencer'
 
 export default async (api, playlistId, options = { getAll: false }) => {
-  consola.debug(`[Collect Playlist] run '${playlistId}' ...`)
-
   // もし idが空なら例外
   throwIf(!playlistId, new Error('Parameter error of ID.'))
+
+  consola.debug(`[Collect Playlist] run '${playlistId}' ...`)
 
   // API の処理を実装
   // TODO: とりあえず playlistID を外部から強制設定するようにした
@@ -51,9 +51,9 @@ export default async (api, playlistId, options = { getAll: false }) => {
 
   // 結果表示
   const videoIds = res.getResult()
-  const mes = res.format('%r%, %t/%l, skip:%f')
-  consola.info(
-    `[Collect Playlist] Finish! Get ${videoIds.length} items. (${mes})`
+  const mes = res.format('%r%, %t/%l, err:%f')
+  consola.debug(
+    `[Collect Playlist] Finish! Get ${videoIds.length} items. (${mes}, id:'${playlistId}')`
   )
 
   return videoIds
@@ -63,7 +63,7 @@ export default async (api, playlistId, options = { getAll: false }) => {
 
 const process = async (map, options) => {
   const seq = new ItemSequencer(map)
-  seq.onError = (value, key, error) => {
+  seq.onError = ({ index, key, value, error }) => {
     consola.warn({
       message: `[Collect Playlist] '${key}' - ${error.message}`,
       badge: false
@@ -71,7 +71,7 @@ const process = async (map, options) => {
   }
 
   // API値の整形
-  await seq.forEach((value, key, iseq) => {
+  await seq.forEach(({ index, key, value }) => {
     const videoId = get(value, 'snippet.resourceId.videoId')
     if (videoId) {
       return videoId
@@ -81,7 +81,7 @@ const process = async (map, options) => {
   })
 
   const res = seq.getResult()
-  const mes = seq.format('%r%, %t/%l, skip:%f')
+  const mes = seq.format('%r%, %t/%l, err:%f')
   consola.debug(`[Collect Playlist] Get ${res.length} items. (${mes})`)
 
   return seq

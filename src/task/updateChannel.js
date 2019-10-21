@@ -12,9 +12,6 @@ export default async (
   channelIDs = [],
   options = { doChain: false, skipExist: false }
 ) => {
-  const len = channelIDs.length
-  consola.debug(`[Update Channel] run ${len} items ...`)
-
   // もし id配列が空なら例外
   throwIf(!Array.isArray(channelIDs), new Error('Parameter error of IDs.'))
 
@@ -23,6 +20,8 @@ export default async (
     consola.info(`[Update Channel] There is no data to process.`)
     return
   }
+
+  consola.debug(`[Update Channel] run ${channelIDs.length} items ...`)
 
   // API の処理を実装
   const paginator = new YoutubePaginator(
@@ -62,7 +61,7 @@ export default async (
 
   // 結果表示
   const results = res.getResult()
-  const mes = res.format('%r%, %t/%l, skip:%f')
+  const mes = res.format('%r%, %t/%l, err:%f')
   consola.info(
     `[Update Channel] Finish! Update ${results.length} items. (${mes})`
   )
@@ -72,10 +71,14 @@ export default async (
 
 const process = async (map, options) => {
   const seq = new ItemSequencer(map)
-  seq.onSuccess = (value, key, res) => {
-    consola.debug(`[Update Channel] Updated. '${key}' ${res.title}`)
+  seq.onSuccess = ({ index, key, value, response, isSkip }) => {
+    if (!isSkip) {
+      consola.debug(`[Update Channel] Updated. '${key}' ${response.title}`)
+    } else {
+      consola.debug(`[Update Channel] Skipped. '${key}'`)
+    }
   }
-  seq.onError = (value, key, error) => {
+  seq.onError = ({ index, key, value, error }) => {
     consola.warn({
       message: `[Update Channel] '${key}' - ${error.message}`,
       badge: false
@@ -83,14 +86,14 @@ const process = async (map, options) => {
   }
 
   // 一つずつ保存する
-  await seq.forEach(async (value, key, iseq) => {
-    const res = await insertChannel(value, key, options)
+  await seq.forEach(async ({ index, key, value }) => {
+    const res = await insertChannel(key, value, options)
     return res
   })
 
   // 結果表示
   const res = seq.getResult()
-  const mes = seq.format('%r%, %t/%l, skip:%f')
+  const mes = seq.format('%r%, %t/%l, err:%f')
   consola.debug(`[Update Channel] Update ${res.length} items. (${mes})`)
 
   return seq

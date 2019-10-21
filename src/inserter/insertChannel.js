@@ -5,8 +5,8 @@ import throwIf from '../lib/throwIf'
 import { Account, Channel, ChannelStat } from '../../models'
 
 export default async (
-  item,
   channelID,
+  item,
   { doChain = false, skipExist = false }
 ) => {
   consola.trace(`>> run update '${channelID}'`)

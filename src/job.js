@@ -53,7 +53,7 @@ export const weekVideoUpdate = async function(api, date) {
 export const feedVideoUpdate = async function(api) {
   const cids = await findChannelID({})
 
-  await forEachSeries(cids, async (cid) => {
+  await forEachSeries(cids, async (cid, index) => {
     const vids = await collectFeedVideos(cid)
     await updateVideo(api, vids, { skipExist: true })
   })

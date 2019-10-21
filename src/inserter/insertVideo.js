@@ -7,8 +7,8 @@ import { Channel, Video, VideoStat } from '../../models'
 import deleteVideo from './deleteVideo'
 
 export default async (
-  item,
   videoID,
+  item,
   { doChain = false, skipExist = false, skipUpcoming = false }
 ) => {
   consola.trace(`>> run update '${videoID}'`)
@@ -20,13 +20,13 @@ export default async (
   // skipExist 時、DBに存在するなら何もしない
   if (skipExist && hasDatabase) {
     consola.trace(`> Skip because it exist.`)
-    return video
+    return null
   }
 
   // item が空でデータベースに存在するなら削除処理
   if (item == null && hasDatabase) {
     consola.trace('> Pass to delete process.')
-    const res = await deleteVideo(item, videoID)
+    const res = await deleteVideo(videoID, item)
     return res
   }
 
@@ -156,14 +156,14 @@ export default async (
   // skipUpcoming 時、upcomingなら何もしない
   if (skipUpcoming && meta.type === 'upcoming') {
     consola.trace(`> Skip because it upcoming.`)
-    return video
+    return null
   }
 
   // ■ Channel を取得してくる (無かったら null)
   const channel = await Channel.findOne({ channel_id: channelId })
 
   // 取得できなかったら例外
-  // TODO: 連鎖
+  // TODO: account, channel 連鎖処理は実装してない
   throwIf(!channel, new Error("'Channel' is not exist in the database."))
 
   // ■ Video を作成

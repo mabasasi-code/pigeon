@@ -4,7 +4,7 @@ import throwIf from '../lib/throwIf'
 
 import { Video } from '../../models'
 
-export default async (item, videoID, options) => {
+export default async (videoID, item, options) => {
   consola.trace(`>> run delete '${videoID}'`)
 
   // key が空ならエラー
