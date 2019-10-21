@@ -49,7 +49,12 @@ export default {
           to: '/account'
         },
         {
-          icon: 'mdi-library-movie',
+          icon: 'mdi-youtube',
+          title: 'VTuber',
+          to: '/channel'
+        },
+        {
+          icon: 'mdi-filmstrip',
           title: 'Video',
           to: '/video'
         },

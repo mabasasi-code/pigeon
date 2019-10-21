@@ -17,6 +17,7 @@
             v-chip.mx-2(label small v-bind='tagBindObjects(video.type)') {{ video.type | localeType }}
         
           div.ma-2.title.text--primary {{ video.title }}
+
           v-row.mx-2.align-end(v-if='video.stats')
             //- second がない場合は start と現在時刻を対比させる
             v-col.mx-1.pa-0.one-line
