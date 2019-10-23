@@ -15,16 +15,16 @@
             v-btn(small)
               v-icon(small) mdi-view-list
 
-    VideoList(:videos='videos' :showGrid='listMode === 0' :imageWidth='320')
+    ChannelList(:channels='channels' :showGrid='listMode === 0' :imageWidth='320')
 
 </template>
 
 <script>
 import stringFilters from '~/mixins/stringFilters'
-import VideoList from '~/components/VideoList'
+import ChannelList from '~/components/ChannelList'
 
 export default {
-  components: { VideoList },
+  components: { ChannelList },
 
   mixins: [stringFilters],
 
@@ -32,7 +32,7 @@ export default {
     return {
       searchText: '',
       listMode: 0, // 0: grid, 1:list
-      videos: [],
+      channels: [],
       requestTime: 0, // 実処理時間
       totalItems: 0 // 全件数
     }
@@ -50,16 +50,19 @@ export default {
     async getDataFromApi() {
       const ts = new Date()
 
-      // 全てのビデオを直近のもの順で
-      const { items: videos, paginator } = await this.$axios.$get('/video', {
-        params: {
-          text: this.searchText,
-          limit: 24,
-          sort: 'start_time',
-          order: 'desc'
+      // 全てのチャンネルを直近のもの順で
+      const { items: channels, paginator } = await this.$axios.$get(
+        '/channel',
+        {
+          params: {
+            text: this.searchText,
+            limit: 24,
+            sort: 'published_at',
+            order: 'asc'
+          }
         }
-      })
-      this.videos = videos || []
+      )
+      this.channels = channels || []
 
       // 統計保存
       this.requestTime = new Date() - ts

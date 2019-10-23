@@ -26,22 +26,25 @@ export default class ItemSequencer {
    * 逐次処理.
    * - 内部で error catch しています
    * - onSuccess(), onError() でのハンドリング推奨
-   * @param {Function} callback return と throw 成功失敗を判定
+   * @param {Function} callback return と throw で成功失敗を判定、null でスキップ要素
    */
   async forEach(callback) {
     const entries = this._map.entries()
 
-    await forEachSeries(Array.from(entries), async (entry) => {
+    await forEachSeries(Array.from(entries), async (entry, index) => {
       const key = get(entry, 0)
       const value = get(entry, 1)
 
       try {
-        const res = await callback(value, key, this)
-        this.success(res)
-        this.onSuccess(value, key, res)
-      } catch (err) {
+        // return true で成功、 return null でスキップ
+        const meta = { index, key, value, sequencer: this }
+        const response = await callback(meta)
+        const isSkip = response === null
+        this.success(response)
+        this.onSuccess({ index, key, value, response, isSkip, sequencer: this })
+      } catch (error) {
         this.error()
-        this.onError(value, key, err)
+        this.onError({ index, key, value, error, sequencer: this })
       }
     })
   }
@@ -65,7 +68,6 @@ export default class ItemSequencer {
   merge(sequencer) {
     this._success += sequencer._success
     this._error += sequencer._error
-    this._skip += sequencer._skip
     this._results.push(...sequencer._results)
 
     // map のマージ
@@ -90,7 +92,7 @@ export default class ItemSequencer {
     return r.toFixed(3) * 100
   }
 
-  format(format = '%r%, %t/%l, skip:%f') {
+  format(format = '%r%, %t/%l, err:%f') {
     return format
       .replace(/%t/g, '' + this._success)
       .replace(/%f/g, '' + this._error)

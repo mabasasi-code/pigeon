@@ -12,9 +12,6 @@ export default async (
   videoIDs = [],
   options = { doChain: false, skipExist: false, skipUpcoming: false }
 ) => {
-  const len = videoIDs.length
-  consola.debug(`[Update Video] run ${len} items ...`)
-
   // もし id配列が空なら例外
   throwIf(!Array.isArray(videoIDs), new Error('Parameter error of IDs.'))
 
@@ -23,6 +20,8 @@ export default async (
     consola.info(`[Update Video] There is no data to process.`)
     return
   }
+
+  consola.debug(`[Update Video] run ${videoIDs.length} items.`)
 
   // API の処理を実装
   const paginator = new YoutubePaginator(
@@ -63,7 +62,7 @@ export default async (
 
   // 結果表示
   const results = res.getResult()
-  const mes = res.format('%r%, %t/%l, skip:%f')
+  const mes = res.format('%r%, %t/%l, err:%f')
   consola.info(
     `[Update Video] Finish! Update ${results.length} items. (${mes})`
   )
@@ -73,10 +72,14 @@ export default async (
 
 const process = async (map, options) => {
   const seq = new ItemSequencer(map)
-  seq.onSuccess = (value, key, res) => {
-    consola.debug(`[Update Video] Updated. '${key}' ${res.title}`)
+  seq.onSuccess = ({ index, key, value, response, isSkip }) => {
+    if (!isSkip) {
+      consola.debug(`[Update Video] Updated. '${key}' ${response.title}`)
+    } else {
+      consola.debug(`[Update Video] Skipped. '${key}'`)
+    }
   }
-  seq.onError = (value, key, error) => {
+  seq.onError = ({ index, key, value, error }) => {
     consola.warn({
       message: `[Update Video] '${key}' - ${error.message}`,
       badge: false
@@ -84,14 +87,14 @@ const process = async (map, options) => {
   }
 
   // 一つずつ保存する
-  await seq.forEach(async (value, key, iseq) => {
-    const res = await insertVideo(value, key, options)
+  await seq.forEach(async ({ index, key, value }) => {
+    const res = await insertVideo(key, value, options)
     return res
   })
 
   // 結果表示
   const res = seq.getResult()
-  const mes = seq.format('%r%, %t/%l, skip:%f')
+  const mes = seq.format('%r%, %t/%l, err:%f')
   consola.debug(`[Update Video] Update ${res.length} items. (${mes})`)
 
   return seq

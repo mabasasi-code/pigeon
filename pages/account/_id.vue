@@ -14,18 +14,18 @@
             ChannelPanel(:channel='channel')
 
       v-col
-        VideoListPanel(:videos='videos')
+        VideoList(:videos='videos' :imageWidth='200')
 
 </template>
 
 <script>
-import ChannelPanel from '~/components/account/channel-panel.vue'
-import VideoListPanel from '~/components/account/video-list-panel.vue'
+import ChannelPanel from '~/components/ChannelPanel'
+import VideoList from '~/components/VideoList'
 
 export default {
   components: {
     ChannelPanel,
-    VideoListPanel
+    VideoList
   },
 
   data() {

@@ -1,75 +1,91 @@
-<template>
-  <v-layout column justify-center align-center>
-    <v-flex xs12 sm8 md6>
-      <div class="text-center">
-        <logo />
-        <vuetify-logo />
-      </div>
-      <v-card>
-        <v-card-title class="headline">
-          Welcome to the Vuetify + Nuxt.js template
-        </v-card-title>
-        <v-card-text>
-          <p>
-            Vuetify is a progressive Material Design component framework for
-            Vue.js. It was designed to empower developers to create amazing
-            applications.
-          </p>
-          <p>
-            For more information on Vuetify, check out the
-            <a href="https://vuetifyjs.com" target="_blank"> documentation </a>.
-          </p>
-          <p>
-            If you have questions, please join the official
-            <a href="https://chat.vuetifyjs.com/" target="_blank" title="chat">
-              discord </a
-            >.
-          </p>
-          <p>
-            Find a bug? Report it on the github
-            <a
-              href="https://github.com/vuetifyjs/vuetify/issues"
-              target="_blank"
-              title="contribute"
-            >
-              issue board </a
-            >.
-          </p>
-          <p>
-            Thank you for developing with Vuetify and I look forward to bringing
-            more exciting features in the future.
-          </p>
-          <div class="text-xs-right">
-            <em><small>&mdash; John Leider</small></em>
-          </div>
-          <hr class="my-3" />
-          <a href="https://nuxtjs.org/" target="_blank">
-            Nuxt Documentation
-          </a>
-          <br />
-          <a href="https://github.com/nuxt/nuxt.js" target="_blank">
-            Nuxt GitHub
-          </a>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="primary" nuxt to="/inspire">
-            Continue
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-flex>
-  </v-layout>
+<template lang="pug">
+  div
+    v-subheader
+      v-row(no-gutters)
+        v-col(cols='auto')
+          span {{ timestamp | datetimeFormat }} 
+
+        v-spacer
+        v-col(cols='auto')
+          v-btn-toggle(v-model='listMode' mandatory color='primary')
+            v-btn(small)
+              v-icon(small) mdi-view-grid
+            v-btn(small)
+              v-icon(small) mdi-view-list
+
+    div
+      span.display-1 > 配信中
+      span (5 分おきに更新)
+    VideoList(:videos='liveVideos' :showGrid='listMode === 0' :imageWidth='200')
+    
+    v-divider.ma-4
+
+    div
+      span.display-1 > 配信予定
+      span (5,20,35,50 分に更新)
+    VideoList(:videos='scheduleVideos' :showGrid='listMode === 0' :imageWidth='200')
+
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
-import VuetifyLogo from '~/components/VuetifyLogo.vue'
+import stringFilters from '~/mixins/stringFilters'
+import VideoList from '~/components/VideoList'
 
 export default {
-  components: {
-    Logo,
-    VuetifyLogo
+  components: { VideoList },
+
+  mixins: [stringFilters],
+
+  data() {
+    return {
+      listMode: 0, // 0: grid, 1:list
+      liveVideos: [],
+      scheduleVideos: [],
+      timestamp: null, // 処理日時
+      requestTime: 0 // 実処理時間
+    }
+  },
+
+  async mounted() {
+    await this.getDataFromApi()
+  },
+
+  methods: {
+    onSearch() {
+      this.getDataFromApi()
+    },
+    async getDataFromApi() {
+      // 取得時刻を格納
+      const ts = new Date()
+
+      // 配信中のものを同接順で
+      const { items: lives } = await this.$axios.$get('/video', {
+        params: {
+          type: 'live',
+          status: 'public,unlisted',
+          sort: 'stats.now.current',
+          order: 'desc',
+          limit: 100
+        }
+      })
+      this.liveVideos = lives || []
+
+      // 配信予定のものを直近のもの順で
+      const { items: schedules } = await this.$axios.$get('/video', {
+        params: {
+          type: 'upcoming',
+          status: 'public,unlisted',
+          sort: 'start_time',
+          order: 'asc',
+          limit: 100
+        }
+      })
+      this.scheduleVideos = schedules || []
+
+      // 統計保存
+      this.timestamp = ts
+      this.requestTime = new Date() - ts
+    }
   }
 }
 </script>

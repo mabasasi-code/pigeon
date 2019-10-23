@@ -4,7 +4,7 @@ import throwIf from '../lib/throwIf'
 
 import { Video } from '../../models'
 
-export default async (item, videoID, options) => {
+export default async (videoID, item, options) => {
   consola.trace(`>> run delete '${videoID}'`)
 
   // key が空ならエラー
@@ -25,7 +25,7 @@ export default async (item, videoID, options) => {
   // メインメタ情報
   const meta = {
     video_id: videoID,
-    type: 'delete'
+    status: 'delete'
   }
 
   // ライブ中なら archive と終了時刻を付与する

@@ -10,18 +10,18 @@ router.get(
   '/',
   wrap(async (req, res) => {
     const { sort, order, page, limit, simple } = req.query // 統計系
-    const channel = req.query.channel // 所属チャンネル xx,yy,zz
+    const channel = req.query.channel // チャンネルHash xx,yy,zz
+    const type = req.query.type // 種別
+    const status = req.query.status // 状態
     const text = req.query.text // 検索文字列
 
     // video
     const v = Video.find()
-    if (channel) {
-      // チャンネル抽出
-      const channels = channel.split(',')
-      v.in('channel', channels)
-    }
+    if (channel) v.in('channel', channel.split(','))
+    if (type) v.in('type', type.split(','))
+    if (status) v.in('status', status.split(','))
+
     if (text) {
-      // 文字列抽出
       v.or([{ title: { $regex: new RegExp(text, 'i') } }])
     }
     v.sort({ [sort]: order })
@@ -59,6 +59,22 @@ router.get(
     json.records.sort((a, b) => a.timestamp - b.timestamp)
 
     res.status(200).json(json)
+  })
+)
+
+router.get(
+  '/:id/record',
+  wrap(async (req, res) => {
+    const id = req.params.id // video_id
+    const { sort, order, page, limit, simple } = req.query // 統計系
+
+    // video-stat
+    const s = VideoStat.find()
+    s.where('video').equals(id)
+    s.sort({ [sort || 'timestamp']: order || '1' })
+    const stats = await VideoStat.paginate(s, { page, limit })
+
+    res.status(200).json(simple ? stats.items : stats)
   })
 )
 
