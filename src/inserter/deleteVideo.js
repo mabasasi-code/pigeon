@@ -1,12 +1,11 @@
-import consola from 'consola'
 import moment from 'moment'
+
+import { batch as logger } from '../../logger'
 import throwIf from '../lib/throwIf'
 
 import { Video } from '../../models'
 
 export default async (videoID, item, options) => {
-  consola.trace(`>> run delete '${videoID}'`)
-
   // key が空ならエラー
   throwIf(videoID == null, new Error('No item videoID.'))
 
@@ -42,7 +41,7 @@ export default async (videoID, item, options) => {
   await video.save()
 
   const vlog = `<${video._id}>, ${video.video_id}, ${video.title}`
-  consola.trace(`> 'Video' Delete. ${vlog}`)
+  logger.trace(`> 'Video' Delete. ${vlog}`)
 
   // Video-Stat は作成できない(データがないため)
   return video

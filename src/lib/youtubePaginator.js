@@ -27,6 +27,14 @@ export default class YoutubePaginator {
     this.resultsPerPage = null
   }
 
+  getCursor() {
+    return this._cursor
+  }
+
+  getLength() {
+    return this._chunks.length
+  }
+
   hasNext() {
     return this.nextPageToken || this._cursor < this._chunks.length
   }

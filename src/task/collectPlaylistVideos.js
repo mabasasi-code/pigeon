@@ -1,5 +1,6 @@
-import consola from 'consola'
 import { get } from 'object-path'
+
+import { batch as logger } from '../../logger'
 import throwIf from '../lib/throwIf'
 import arrayToMap from '../lib/arrayToMap'
 import YoutubePaginator from '../lib/YoutubePaginator'
@@ -9,7 +10,7 @@ export default async (api, playlistId, options = { getAll: false }) => {
   // もし idが空なら例外
   throwIf(!playlistId, new Error('Parameter error of ID.'))
 
-  consola.debug(`[Collect Playlist] run '${playlistId}'.`)
+  logger.info('START', '-', '<collect playlist>', `(playlistID: ${playlistId})`)
 
   // API の処理を実装
   // TODO: とりあえず playlistID を外部から強制設定するようにした
@@ -29,13 +30,16 @@ export default async (api, playlistId, options = { getAll: false }) => {
   )
 
   // 連続処理
-  const res = new ItemSequencer()
+  const seq = new ItemSequencer()
   do {
     // API を叩く
     const items = await paginator.exec()
 
-    const mes2 = `res:${paginator.statusCode}, next:${paginator.hasNext()}`
-    consola.debug(`[Collect Playlist] Fetch ${items.length} items. (${mes2})`)
+    const cnt = `${paginator.getCursor()}/${paginator.getLength()}`
+    const code = paginator.statusCode
+    const next = paginator.hasNext()
+    const mes2 = `(${cnt}, res:${code}, next:${next})`
+    logger.debug('FETCH', '-', `${items.length} items.`, mes2)
 
     // item 配列が存在しなかったらエラー、空ならスキップ
     throwIf(!Array.isArray(items), new Error('Channel Playlist fetch error.'))
@@ -45,16 +49,14 @@ export default async (api, playlistId, options = { getAll: false }) => {
     const map = arrayToMap(items, (item) => get(item, 'id'))
 
     // 逐次処理プロセス
-    const seq = await process(map)
-    res.merge(seq)
+    const res = await process(map)
+    seq.merge(res)
   } while (options.getAll && paginator.hasNext())
 
   // 結果表示
-  const videoIds = res.getResult()
-  const mes = res.format('%r%, %t/%l, err:%f')
-  consola.debug(
-    `[Collect Playlist] Finish! Get ${videoIds.length} items. (${mes}, id:'${playlistId}')`
-  )
+  const videoIds = seq.getResult()
+  const mes = seq.format('%r%, %t/%l, skip:%s, err:%f')
+  logger.info('FINISH', '-', '<collect playlist>', `(${mes})`)
 
   return videoIds
 }
@@ -63,11 +65,11 @@ export default async (api, playlistId, options = { getAll: false }) => {
 
 const process = async (map, options) => {
   const seq = new ItemSequencer(map)
-  seq.onError = ({ index, key, value, error }) => {
-    consola.warn({
-      message: `[Collect Playlist] '${key}' - ${error.message}`,
-      badge: false
-    })
+  seq.onError = ({ key, value, error, index, length }) => {
+    const head = `[${index + 1}/${length}]`
+    logger.error(head, 'ERROR', '-', error.message)
+    logger.warn('-', 'KEY:', key || 'undefined')
+    logger.warn('-', 'VALUE:', JSON.stringify(value, null, 2) || 'undefined')
   }
 
   // API値の整形
@@ -80,9 +82,9 @@ const process = async (map, options) => {
     throw new Error('No video ID!')
   })
 
-  const res = seq.getResult()
-  const mes = seq.format('%r%, %t/%l, err:%f')
-  consola.debug(`[Collect Playlist] Get ${res.length} items. (${mes})`)
+  // 結果表示
+  const mes = seq.format('%r%, %t/%l, skip:%s, err:%f')
+  logger.debug('PROCESS', '-', `(${mes})`)
 
   return seq
 }

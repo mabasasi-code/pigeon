@@ -1,6 +1,8 @@
 import { get } from 'object-path'
 import { forEachSeries } from 'p-iteration'
 
+import { plane as logger } from '../../logger'
+
 export default class ItemSequencer {
   /**
    * Constructor.
@@ -30,21 +32,38 @@ export default class ItemSequencer {
    */
   async forEach(callback) {
     const entries = this._map.entries()
+    const ary = Array.from(entries)
+    const length = ary.length
 
-    await forEachSeries(Array.from(entries), async (entry, index) => {
+    await forEachSeries(ary, async (entry, index) => {
       const key = get(entry, 0)
       const value = get(entry, 1)
 
       try {
         // return true で成功、 return null でスキップ
-        const meta = { index, key, value, sequencer: this }
+        const meta = { key, value, index, length, sequencer: this }
         const response = await callback(meta)
-        const isSkip = response === null
+        const isSkip = response == null
         this.success(response)
-        this.onSuccess({ index, key, value, response, isSkip, sequencer: this })
+        this.onSuccess({
+          key, // map のキー
+          value, // map の値
+          response, // 処理結果
+          index, // map のインデックス
+          length, // map の長さ
+          isSkip, // 処理が skip されたか
+          sequencer: this
+        })
       } catch (error) {
         this.error()
-        this.onError({ index, key, value, error, sequencer: this })
+        this.onError({
+          key, // map のキー
+          value, // map の値
+          error, // 発生した Error
+          index, // map のインデックス
+          length, // map の長さ
+          sequencer: this
+        })
       }
     })
   }
@@ -73,7 +92,8 @@ export default class ItemSequencer {
     // map のマージ
     sequencer._map.forEach((v, k) => {
       if (this._map.has(k)) {
-        console.error('sequence error!')
+        // TODO: 例外を吐くほどではないため検討中
+        logger.warn('Duplicated key!')
       } else {
         this._map.set(k, v)
       }
@@ -93,9 +113,12 @@ export default class ItemSequencer {
   }
 
   format(format = '%r%, %t/%l, err:%f') {
+    const resLen = this._results.length
     return format
-      .replace(/%t/g, '' + this._success)
-      .replace(/%f/g, '' + this._error)
+      .replace(/%t/g, '' + this._success) // ok + skip
+      .replace(/%f/g, '' + this._error) // error
+      .replace(/%c/g, '' + resLen) // ok
+      .replace(/%s/g, '' + (this._success - resLen)) // skip
       .replace(/%r/g, '' + this.rate())
       .replace(/%l/g, '' + this._length)
       .replace(/%%/g, '%')

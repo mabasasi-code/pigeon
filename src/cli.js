@@ -1,23 +1,31 @@
-import consola from 'consola'
 import { cac } from 'cac'
 import { forEachSeries } from 'p-iteration'
+
+import { cli as logger } from '../logger'
 import database, { Channel } from '../models'
 import throwIf from './lib/throwIf'
 import api from './lib/youtubeAPI'
 
-import updateChannel from './task/updateChannel'
 import updateVideo from './task/updateVideo'
 import collectPlaylistVideos from './task/collectPlaylistVideos'
 import collectFeedVideos from './task/collectFeedVideos'
 import cron from './cron'
 
+import {
+  channelUpdate,
+  videoUpdate,
+  upcomingVideoUpdate,
+  liveVideoUpdate
+} from './job'
+
 // 簡易 wrapper
 const wrap = async (callback) => {
   try {
+    await database()
     await callback()
     process.exit(0)
   } catch (err) {
-    consola.error(err)
+    logger.error(err)
     process.exit(1)
   }
 }
@@ -34,22 +42,24 @@ cli
     const doChain = options.force // 連鎖取得
 
     await wrap(async () => {
-      await database()
-      await updateChannel(api, items, { doChain, skipExist })
+      // Job に転送
+      await channelUpdate(api, items, { doChain, skipExist })
     })
   })
 
 cli
   .command('video [...video IDs]', 'Add or Update videos.')
   .option('-s, --skip', 'Skip when exist.')
-  .option('-f, --force', 'Force Update.')
+  .option('-a, --all', 'All video update.')
+  // .option('-f, --force', 'Force Update.')
   .action(async (items, options) => {
     const skipExist = options.skip // 存在する時スキップする
-    const doChain = options.force // 未実装
+    const all = options.all // 全ての video を対象とする
+    // const doChain = options.force // 未実装
 
     await wrap(async () => {
-      await database()
-      await updateVideo(api, items, { doChain, skipExist })
+      // Job に転送
+      await videoUpdate(api, items, { skipExist, all })
     })
   })
 
@@ -59,6 +69,8 @@ cli
   .option('-s, --skip', 'Skip when exist.')
   .option('-f, --force', 'Force Update.')
   .action(async (items, options) => {
+    // TODO: log 未最適化
+
     const getAll = options.all // 全て取得
     const skipExist = options.skip // 存在する時スキップする
     const doChain = options.force // 未実装
@@ -84,6 +96,8 @@ cli
   .option('-s, --skip', 'Skip when exist.')
   .option('-f, --force', 'Force Update.')
   .action(async (items, options) => {
+    // TODO: log 未最適化
+
     // const getAll = options.all // 全て取得
     const skipExist = options.skip // 存在する時スキップする
     const doChain = options.force // 未実装
@@ -107,6 +121,36 @@ cli
 /// ////////////////////////////////////////////////////////////
 
 cli
+  .command('upcoming', 'Update upcoming videos.')
+  .option('-s, --skip', 'Skip when exist.')
+  .option('-k, --keep', 'Skip when no change in type.')
+  .action(async (options) => {
+    const skipExist = options.skip // 存在する時スキップする
+    const skipUpcoming = options.keep // 種別が変わらない時、スキップする
+
+    await wrap(async () => {
+      // Job に転送
+      await upcomingVideoUpdate(api, { skipExist, skipUpcoming })
+    })
+  })
+
+cli
+  .command('live', 'Update live videos.')
+  .option('-s, --skip', 'Skip when exist.')
+  // .option('-k, --keep', 'Skip when no change in type.')
+  .action(async (options) => {
+    const skipExist = options.skip // 存在する時スキップする
+    // const skipUpcoming = options.keep // 種別が変わらない時、スキップする
+
+    await wrap(async () => {
+      // Job に転送
+      await liveVideoUpdate(api, { skipExist })
+    })
+  })
+
+/// ////////////////////////////////////////////////////////////
+
+cli
   .command('clear', '!!! Reset database. --yes option required. !!!')
   .option('-y, --yes', 'Required')
   .action(async (options) => {
@@ -115,9 +159,10 @@ cli
     await wrap(async () => {
       throwIf(!yes, new Error('--yes option required.'))
 
+      logger.info('RUN', '-', 'Reset all data.')
       const conn = await database()
       const res = await conn.connection.db.dropDatabase()
-      consola.info(res)
+      logger.info(res)
     })
   })
 
@@ -125,7 +170,8 @@ cli
 
 cli.command('[...args]', 'Run cron.').action(async (args, options) => {
   // cron を実行
-  // 終了は Ctrl + C
+  logger.info('RUN', '-', 'Crom mode.')
+  logger.info('> Press Ctrl+C to exit.')
   await cron()
 })
 

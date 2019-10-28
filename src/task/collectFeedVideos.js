@@ -1,27 +1,28 @@
-import consola from 'consola'
 import { get } from 'object-path'
 import feedParser from 'feedparser-promised'
+
+import { batch as logger } from '../../logger'
 import throwIf from '../lib/throwIf'
 
 export default async (channelId, options = {}) => {
   // もし idが空なら例外
   throwIf(!channelId, new Error('Parameter error of ID.'))
 
-  consola.debug(`[Collect feed] run '${channelId}'.`)
+  logger.info('START', '-', '<collect feed>', `(channelID: ${channelId})`)
 
   // URL を叩く
   const items = await fetchFeed(channelId)
 
-  consola.debug(`[Collect feed] Fetch ${items.length} items`)
+  // ★ response code は 200 固定 (取得方法が分からないため)
+  const mes2 = `(res:200, next:false)`
+  logger.debug('FETCH', '-', `${items.length} items.`, mes2)
 
   // マッピング
   const videoIds = items.map((e) => get(e, 'yt:videoid.#')).filter((e) => e)
 
   // 結果表示
-  // TODO: response code は 200 固定 (取得方法が分からないため)
-  consola.info(
-    `[Collect feed] Finish! Get ${videoIds.length} items. (res: 200, id:'${channelId}')`
-  )
+  const mes = `(len: ${videoIds.length}, id:'${channelId}')`
+  logger.info('FINISH', '-', '<collect feed>', mes)
 
   return videoIds
 }
