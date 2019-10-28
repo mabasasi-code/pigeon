@@ -103,7 +103,7 @@ const process = async (map, options) => {
     // option がある場合、 exist チェック
     if (options.skipExist) {
       // DB チェック
-      const len = await Video.count({ video_id: videoId })
+      const len = await Video.countDocuments({ video_id: videoId })
 
       // もし、存在するならスキップ
       if (len) return null
