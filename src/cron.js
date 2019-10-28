@@ -1,7 +1,7 @@
 import moment from 'moment'
 import schedule from 'node-schedule'
 
-import { cron as logger } from '../logger'
+import { cron as logger, EOL } from '../logger'
 import database from '../models'
 import api from './lib/youtubeAPI'
 import * as job from './job'
@@ -11,8 +11,8 @@ export default async () => {
   await database()
 
   // test usage
-  // await batch(api, moment('2019-10-28 10:05'))
-  // process.exit(0)
+  await batch(api, moment('2019-10-29 00:05'))
+  process.exit(0)
 
   schedule.scheduleJob('*/5 * * * *', async function(fireDate) {
     await batch(api, moment(fireDate))
@@ -56,7 +56,7 @@ const batch = async (api, date) => {
     // 15分ごとに feed から video を更新する (5, 20, 35, 50)
     if ((minute - 5) % 15 === 0) {
       logger.info('RUN', '-', 'Add videos from feed', '...')
-      await job.feedVideoUpdate(api)
+      await job.feedVideoUpdate(api, [], { skipExist: true })
     }
   } catch (err) {
     logger.error(err)
@@ -66,8 +66,7 @@ const batch = async (api, date) => {
     logger.info('-', 'date:', dateStr)
     logger.info('-', 'time:', diffSec.toFixed(2), 'sec')
     logger.info(
-      `------------------------------------------------------------` +
-        logger.EOL
+      `------------------------------------------------------------` + EOL
     )
   }
 }

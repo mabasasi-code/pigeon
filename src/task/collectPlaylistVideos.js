@@ -13,8 +13,9 @@ export default async (api, playlistId, options = { getAll: false }) => {
   logger.info('START', '-', '<collect playlist>', `(playlistID: ${playlistId})`)
 
   // API の処理を実装
-  // TODO: とりあえず playlistID を外部から強制設定するようにした
+  // MEMO: とりあえず playlistID を外部から強制設定するようにした
   // playlist を配列で扱う方法があったら置き換える
+  // ただ cron 処理で使う task でもないので、このままでもよさそう
   const paginator = new YoutubePaginator(
     playlistId, // 内部では使わない
     async (chunks, { next }) => {

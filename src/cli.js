@@ -8,14 +8,14 @@ import api from './lib/youtubeAPI'
 
 import updateVideo from './task/updateVideo'
 import collectPlaylistVideos from './task/collectPlaylistVideos'
-import collectFeedVideos from './task/collectFeedVideos'
 import cron from './cron'
 
 import {
   channelUpdate,
   videoUpdate,
   upcomingVideoUpdate,
-  liveVideoUpdate
+  liveVideoUpdate,
+  feedVideoUpdate
 } from './job'
 
 // 簡易 wrapper
@@ -94,27 +94,14 @@ cli
 cli
   .command('feed [...channel IDs]', 'Add or Update videos from feed.')
   .option('-s, --skip', 'Skip when exist.')
-  .option('-f, --force', 'Force Update.')
+  // .option('-f, --force', 'Force Update.')
   .action(async (items, options) => {
-    // TODO: log 未最適化
+    const skipExist = options.skip // 存在する時スキップする (前処理)
+    // const doChain = options.force // 未実装
 
-    // const getAll = options.all // 全て取得
-    const skipExist = options.skip // 存在する時スキップする
-    const doChain = options.force // 未実装
-
-    // TODO: IDの存在可否をチェックしていません
     await wrap(async () => {
-      await database()
-
-      const q = Channel.find()
-      q.in('channel_id', items)
-      const channels = await q.exec()
-      const pids = channels.map((e) => e.channel_id).filter((e) => e)
-
-      await forEachSeries(pids, async (pid) => {
-        const vids = await collectFeedVideos(pid)
-        await updateVideo(api, vids, { doChain, skipExist })
-      })
+      // Job に転送
+      await feedVideoUpdate(api, items, { skipExist })
     })
   })
 

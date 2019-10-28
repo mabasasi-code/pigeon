@@ -1,4 +1,3 @@
-import { forEachSeries } from 'p-iteration'
 import { Channel, Video } from '../models'
 
 import updateChannel from './task/updateChannel'
@@ -29,6 +28,7 @@ export const channelUpdate = async function(
   }
   await updateChannel(api, cids, options)
 }
+
 /**
  * video を更新する (指定がない場合、最新20件).
  * MEMO: cron 処理では使用していない
@@ -50,6 +50,29 @@ export const videoUpdate = async function(
   }
   await updateVideo(api, vids, options)
 }
+
+/**
+ * feed から video を更新する.
+ * @param {YoutubeAPI} api api
+ * @param {String[]|[]} channelIDs channelIDs 、未指定でDB の値をまるごと抜き出す
+ * @param {Object} options option
+ * @param {Boolean} options.skipExist true で DB に存在する際にスキップする
+ */
+export const feedVideoUpdate = async function(
+  api,
+  channelIDs = [],
+  options = { skipExist: false }
+) {
+  let cids = channelIDs
+  if (cids.length === 0) {
+    cids = await findChannelID({})
+  }
+
+  const vids = await collectFeedVideos(cids, options)
+  await updateVideo(api, vids, options)
+}
+
+/// ////////////////////////////////////////////////////////////
 
 /**
  * 配信中 の video を更新する. (delete は除外)
@@ -86,6 +109,7 @@ export const upcomingVideoUpdate = async function(
 
 // 一週間の範囲で 動画 と アーカイブ の video を更新する (delete も含む)
 export const weekVideoUpdate = async function(api, date) {
+  // TODO: option が引数にない
   const limit = date.clone().subtract(7, 'days')
 
   const vids = await findVideoID({
@@ -94,17 +118,6 @@ export const weekVideoUpdate = async function(api, date) {
     type: { $in: ['live', 'upcoming'] }
   })
   await updateVideo(api, vids, { skipExist: false })
-}
-
-// feed から video を更新する
-export const feedVideoUpdate = async function(api) {
-  // TODO: 未最適化
-  const cids = await findChannelID({})
-
-  await forEachSeries(cids, async (cid, index) => {
-    const vids = await collectFeedVideos(cid)
-    await updateVideo(api, vids, { skipExist: true })
-  })
 }
 
 /// ////////////////////////////////////////////////////////////
