@@ -1,5 +1,6 @@
-import consola from 'consola'
 import { get } from 'object-path'
+
+import { batch as logger } from '../../logger'
 import throwIf from '../lib/throwIf'
 
 import { Account, Channel, ChannelStat } from '../../models'
@@ -9,16 +10,14 @@ export default async (
   item,
   { doChain = false, skipExist = false }
 ) => {
-  consola.trace(`>> run update '${channelID}'`)
-
   // DB から Document の取得 (失敗時は null)
   let channel = await Channel.findOne({ channel_id: channelID })
   const hasDatabase = channel != null
 
   // skipExist 時、DBに存在するなら何もしない
   if (skipExist && hasDatabase) {
-    consola.trace(`> Skip because it exist.`)
-    return channel
+    logger.trace(`> Skip because it existed.`)
+    return null
   }
 
   // channel に削除処理は噛ませない
@@ -67,12 +66,12 @@ export default async (
     await channel.save()
 
     const ylog = `<${channel._id}>, ${channel.channel_id}, ${channel.title}`
-    consola.trace(`> 'Channel' Update. ${ylog}`)
+    logger.trace(`> 'Channel' Update. ${ylog}`)
   } else {
     // channel が存在しない場合、アカウントを連鎖で作成する
 
     // 連鎖保存NGなら例外
-    throwIf(!doChain, new Error("'Channel' is not exist in the database."))
+    throwIf(!doChain, new Error("'Account' is not exist in the database."))
 
     // ■ Account を作成
     const name = get(item, 'snippet.title', 'undefined')
@@ -81,7 +80,7 @@ export default async (
     await account.save()
 
     const alog = `<${account._id}> ${account.name}`
-    consola.trace(`> 'Account' Chaining Create. ${alog}`)
+    logger.trace(`> 'Account' Chaining Create. ${alog}`)
 
     // ■ Channel を作成
     channel = new Channel()
@@ -91,7 +90,7 @@ export default async (
     await channel.save()
 
     const clog = `<${channel._id}>, ${channel.channel_id}, ${channel.title}`
-    consola.trace(`> 'Channel' Create. ${clog}`)
+    logger.trace(`> 'Channel' Create. ${clog}`)
 
     // Account に Channel を関連付け
     account.channels.addToSet(channel._id)
@@ -105,7 +104,7 @@ export default async (
   await channelStat.save()
 
   const cslog = `<${channelStat._id}>, ${channelStat.timestamp.toISOString()}`
-  consola.trace(`> 'ChannelStat' Create. ${cslog}`)
+  logger.trace(`> 'ChannelStat' Create. ${cslog}`)
 
   return channel
 }

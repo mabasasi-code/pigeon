@@ -1,6 +1,7 @@
-import consola from 'consola'
 import moment from 'moment'
 import { get } from 'object-path'
+
+import { batch as logger } from '../../logger'
 import throwIf from '../lib/throwIf'
 
 import { Channel, Video, VideoStat } from '../../models'
@@ -9,23 +10,21 @@ import deleteVideo from './deleteVideo'
 export default async (
   videoID,
   item,
-  { doChain = false, skipExist = false, skipUpcoming = false }
+  { skipExist = false, skipUpcoming = false }
 ) => {
-  consola.trace(`>> run update '${videoID}'`)
-
   // DB から Document の取得 (失敗時は null)
   let video = await Video.findOne({ video_id: videoID })
   const hasDatabase = video != null
 
   // skipExist 時、DBに存在するなら何もしない
   if (skipExist && hasDatabase) {
-    consola.trace(`> Skip because it exist.`)
+    logger.trace(`> Skip because it existed.`)
     return null
   }
 
   // item が空でデータベースに存在するなら削除処理
   if (item == null && hasDatabase) {
-    consola.trace('> Pass to delete process.')
+    logger.trace('> Pass to delete process ...')
     const res = await deleteVideo(videoID, item)
     return res
   }
@@ -155,7 +154,7 @@ export default async (
 
   // skipUpcoming 時、upcomingなら何もしない
   if (skipUpcoming && meta.type === 'upcoming') {
-    consola.trace(`> Skip because it upcoming.`)
+    logger.trace(`> Skip because it upcoming.`)
     return null
   }
 
@@ -175,7 +174,7 @@ export default async (
 
   const vlog = `<${video._id}>, ${video.video_id}, ${video.title}`
   const vCmd = hasDatabase ? 'Update' : 'Create'
-  consola.trace(`> 'Video' ${vCmd}. ${vlog}`)
+  logger.trace(`> 'Video' ${vCmd}. ${vlog}`)
 
   // ■ Video-Stat を作成
   const videoStat = new VideoStat()
@@ -184,7 +183,7 @@ export default async (
   await videoStat.save()
 
   const vslog = `<${videoStat._id}>, ${videoStat.timestamp.toISOString()}`
-  consola.trace(`> 'VideoStat' Create. ${vslog}`)
+  logger.trace(`> 'VideoStat' Create. ${vslog}`)
 
   return video
 }

@@ -1,5 +1,6 @@
-import consola from 'consola'
 import { get } from 'object-path'
+
+import { batch as logger } from '../../logger'
 import throwIf from '../lib/throwIf'
 import arrayToMap from '../lib/arrayToMap'
 import YoutubePaginator from '../lib/YoutubePaginator'
@@ -17,11 +18,11 @@ export default async (
 
   // もし id配列の長さが0なら終了
   if (videoIDs.length === 0) {
-    consola.info(`[Update Video] There is no data to process.`)
+    logger.info(`Nothing to process.`)
     return
   }
 
-  consola.debug(`[Update Video] run ${videoIDs.length} items.`)
+  logger.info('START', '-', '<update video>', `(len: ${videoIDs.length})`)
 
   // API の処理を実装
   const paginator = new YoutubePaginator(
@@ -39,13 +40,16 @@ export default async (
   )
 
   // 連続処理
-  const res = new ItemSequencer()
+  const seq = new ItemSequencer()
   do {
     // API を叩く
     const items = await paginator.exec()
 
-    const mes2 = `res:${paginator.statusCode}, next:${paginator.hasNext()}`
-    consola.debug(`[Update Video] Fetch ${items.length} items (${mes2})`)
+    const cnt = `${paginator.getCursor()}/${paginator.getLength()}`
+    const code = paginator.statusCode
+    const next = paginator.hasNext()
+    const mes2 = `(${cnt}, res:${code}, next:${next})`
+    logger.debug('FETCH', '-', `${items.length} items.`, mes2)
 
     // item 配列が存在しなかったらエラー
     throwIf(!Array.isArray(items), new Error('Video data fetch error.'))
@@ -56,46 +60,48 @@ export default async (
     const map = arrayToMap(items, (item) => get(item, 'id'), paginator.useChunk)
 
     // 逐次処理プロセス
-    const seq = await process(map, options)
-    res.merge(seq)
+    const res = await process(map, options)
+    seq.merge(res)
   } while (paginator.hasNext())
 
   // 結果表示
-  const results = res.getResult()
-  const mes = res.format('%r%, %t/%l, err:%f')
-  consola.info(
-    `[Update Video] Finish! Update ${results.length} items. (${mes})`
-  )
+  const len = seq.format('%c items.')
+  const mes = seq.format('(%r%, %t/%l, skip:%s, err:%f)')
+  logger.info('FINISH', '-', '<update video>', len, mes)
 }
 
 /// ////////////////////////////////////////////////////////////
 
 const process = async (map, options) => {
   const seq = new ItemSequencer(map)
-  seq.onSuccess = ({ index, key, value, response, isSkip }) => {
+  seq.onSuccess = ({ key, value, response, index, length, isSkip }) => {
+    const head = `[${index + 1}/${length}]`
     if (!isSkip) {
-      consola.debug(`[Update Video] Updated. '${key}' ${response.title}`)
+      logger.debug(head, 'UPDATE', '-', key, response.title)
     } else {
-      consola.debug(`[Update Video] Skipped. '${key}'`)
+      logger.debug(head, 'SKIP', '-', key)
     }
   }
-  seq.onError = ({ index, key, value, error }) => {
-    consola.warn({
-      message: `[Update Video] '${key}' - ${error.message}`,
-      badge: false
-    })
+  seq.onError = ({ key, value, error, index, length }) => {
+    const head = `[${index + 1}/${length}]`
+    logger.error(head, 'ERROR', '-', error.message)
+    logger.warn('-', 'KEY:', key || 'undefined')
+    logger.warn('-', 'VALUE:', JSON.stringify(value, null, 2) || 'undefined')
   }
 
   // 一つずつ保存する
-  await seq.forEach(async ({ index, key, value }) => {
+  await seq.forEach(async ({ key, value, index, length }) => {
+    const head = `[${index + 1}/${length}]`
+    logger.trace(head, 'TASK', '-', 'Video ID:', key)
+
     const res = await insertVideo(key, value, options)
     return res
   })
 
   // 結果表示
-  const res = seq.getResult()
-  const mes = seq.format('%r%, %t/%l, err:%f')
-  consola.debug(`[Update Video] Update ${res.length} items. (${mes})`)
+  const len = seq.format('%c items.')
+  const mes = seq.format('(%r%, %t/%l, skip:%s, err:%f)')
+  logger.debug('PROCESS', '-', len, mes)
 
   return seq
 }
