@@ -30,7 +30,7 @@ export default async (videoID, item, options) => {
   // ライブ中なら archive と終了時刻を付与する
   // いつ終わったかわからないのでとりあえず取得時間
   if (video.type === 'live') {
-    meta.status = 'archive'
+    meta.type = 'archive'
     meta.end_time = nowTime.toISOString()
   }
 
