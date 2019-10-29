@@ -64,8 +64,9 @@ export default async (
   } while (paginator.hasNext())
 
   // 結果表示
-  const mes = seq.format('%r%, %t/%l, skip:%s, err:%f')
-  logger.info('PROCESS', '-', '<update channel>', `(${mes})`)
+  const len = seq.format('%c items.')
+  const mes = seq.format('(%r%, %t/%l, skip:%s, err:%f)')
+  logger.info('FINISH', '-', '<update channel>', len, mes)
 }
 
 /// ////////////////////////////////////////////////////////////
@@ -97,8 +98,9 @@ const process = async (map, options) => {
   })
 
   // 結果表示
-  const mes = seq.format('%r%, %t/%l, skip:%s, err:%f')
-  logger.debug('SUCCESS', '-', `(${mes})`)
+  const len = seq.format('%c items.')
+  const mes = seq.format('(%r%, %t/%l, skip:%s, err:%f)')
+  logger.debug('PROCESS', '-', len, mes)
 
   return seq
 }

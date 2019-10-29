@@ -7,12 +7,12 @@ import api from './lib/youtubeAPI'
 import * as job from './job'
 
 export default async () => {
-  logger.info('Inintalization.')
+  logger.info('Inintalization.' + EOL)
   await database()
 
   // test usage
-  await batch(api, moment('2019-10-29 00:05'))
-  process.exit(0)
+  // await batch(api, moment('2019-10-29 00:05'))
+  // process.exit(0)
 
   schedule.scheduleJob('*/5 * * * *', async function(fireDate) {
     await batch(api, moment(fireDate))
@@ -27,8 +27,9 @@ const batch = async (api, date) => {
 
   try {
     logger.info('------------------------------------------------------------')
-    logger.info('START', '-', 'Batch processing.', dateStr)
+    logger.info('START', '-', 'Batch processing.')
     logger.info('- date:', dateStr)
+    logger.info('------------------------------------------------------------')
 
     const { hour, minute } = { hour: date.hours(), minute: date.minutes() }
 
@@ -63,6 +64,8 @@ const batch = async (api, date) => {
     logger.error('INTERRUPT!')
   } finally {
     const diffSec = (new Date() - ts) / 1000
+    logger.info('------------------------------------------------------------')
+    logger.info('FINISH', '-', 'Batch processing.')
     logger.info('-', 'date:', dateStr)
     logger.info('-', 'time:', diffSec.toFixed(2), 'sec')
     logger.info(

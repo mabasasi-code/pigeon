@@ -65,8 +65,9 @@ export default async (channelIDs, options = { skipExist: false }) => {
 
   // 結果表示
   const videoIds = seq.getResult()
-  const mes = seq.format('%r%, %t/%l, skip:%s, err:%f')
-  logger.info('PROCESS', '-', '<collect feed>', `(${mes})`)
+  const len = seq.format('%c items.')
+  const mes = seq.format('(%r%, %t/%l, skip:%s, err:%f)')
+  logger.info('FINISH', '-', '<collect feed>', len, mes)
 
   return videoIds
 }
@@ -113,8 +114,9 @@ const process = async (map, options) => {
   })
 
   // 結果表示
-  const mes = seq.format('%r%, %t/%l, skip:%s, err:%f')
-  logger.debug('PROCESS', '-', `(${mes})`)
+  const len = seq.format('%c items.')
+  const mes = seq.format('(%r%, %t/%l, skip:%s, err:%f)')
+  logger.debug('PROCESS', '-', len, mes)
 
   return seq
 }
