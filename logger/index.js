@@ -4,8 +4,11 @@ import log4js from 'log4js'
 import dateFormat from 'date-format'
 import chalk from 'chalk'
 
+const isCLI = process.env.NODE_ENV === 'cli'
+
 const LOG_LEVEL = process.env.LOG_LEVEL || 'INFO' // DEBUG: TRACE or DEBUG, PRODUCTION: INFO or OFF
 const LOG_DIRECTORY = process.env.LOG_DIRECTORY || ''
+const LOG_FILENAME = isCLI ? 'app.log' : 'cron.log'
 
 const levelColors = {
   TRACE: { meta: 'grey', body: 'grey', trace: null },
@@ -53,12 +56,13 @@ log4js.addLayout('origin', function({ addColor }) {
   }
 })
 
+const logType = isCLI ? 'file' : 'dateFile'
 log4js.configure({
   appenders: {
     out: { type: 'stdout', layout: { type: 'origin', addColor: true } },
     logFile: {
-      type: 'dateFile',
-      filename: path.join(LOG_DIRECTORY, 'app.log'),
+      type: logType,
+      filename: path.join(LOG_DIRECTORY, LOG_FILENAME),
       pattern: 'yyyy-MM-dd',
       daysToKeep: 5,
       alwaysIncludePattern: true,
