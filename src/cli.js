@@ -155,12 +155,29 @@ cli
 
 /// ////////////////////////////////////////////////////////////
 
-cli.command('[...args]', 'Run cron.').action(async (args, options) => {
-  // cron を実行
-  logger.info('RUN', '-', 'Crom mode.')
-  logger.info('> Press Ctrl+C to exit.')
-  await cron()
-})
+cli
+  .command('cron', 'Run cron. --yes option required.')
+  .option('-y, --yes', 'Required')
+  .action(async (options) => {
+    const yes = options.yes // 許可
+
+    await wrap(async () => {
+      throwIf(!yes, new Error('--yes option required.'))
+
+      // cron を実行
+      logger.info('RUN', '-', 'Crom mode.')
+      logger.info('> Recommended to use with "RUN_BATCH=true" setting of .env')
+      logger.info('> Press Ctrl+C to exit.')
+      await cron()
+    })
+  })
+
+// cli.command('[...args]', 'Run cron.').action(async (args, options) => {
+//   // cron を実行
+//   logger.info('RUN', '-', 'Crom mode.')
+//   logger.info('> Press Ctrl+C to exit.')
+//   await cron()
+// })
 
 cli.help()
 cli.version()

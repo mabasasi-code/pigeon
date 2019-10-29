@@ -8,7 +8,7 @@ const isCLI = process.env.NODE_ENV === 'cli'
 
 const LOG_LEVEL = process.env.LOG_LEVEL || 'INFO' // DEBUG: TRACE or DEBUG, PRODUCTION: INFO or OFF
 const LOG_DIRECTORY = process.env.LOG_DIRECTORY || ''
-const LOG_FILENAME = isCLI ? 'app.log' : 'cron.log'
+const LOG_FILENAME = isCLI ? 'cli.log' : 'cron.log'
 
 const levelColors = {
   TRACE: { meta: 'grey', body: 'grey', trace: null },
