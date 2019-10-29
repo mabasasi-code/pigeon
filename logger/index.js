@@ -64,23 +64,36 @@ log4js.configure({
       type: logType,
       filename: path.join(LOG_DIRECTORY, LOG_FILENAME),
       pattern: 'yyyy-MM-dd',
-      daysToKeep: 5,
       alwaysIncludePattern: true,
+      daysToKeep: 5,
+      backups: 1,
       keepFileExt: true,
       layout: { type: 'origin', addColor: false }
     },
     errFile: {
       type: 'file',
       filename: path.join(LOG_DIRECTORY, 'error.log'),
+      maxLogSize: 1048576,
+      backups: 1,
+      keepFileExt: true,
       layout: { type: 'origin', addColor: false }
     },
-    log: { type: 'logLevelFilter', appender: 'logFile', level: 'info' },
-    err: { type: 'logLevelFilter', appender: 'errFile', level: 'warn' }
+    traceFile: {
+      type: 'file',
+      filename: path.join(LOG_DIRECTORY, 'trace.log'),
+      maxLogSize: 1048576,
+      backups: 1,
+      keepFileExt: true,
+      layout: { type: 'origin', addColor: false }
+    },
+    show: { type: 'logLevelFilter', appender: 'out', level: LOG_LEVEL },
+    log: { type: 'logLevelFilter', appender: 'logFile', level: 'INFO' },
+    err: { type: 'logLevelFilter', appender: 'errFile', level: 'WARN' }
   },
   categories: {
     default: {
-      appenders: ['out', 'log', 'err'],
-      level: LOG_LEVEL,
+      appenders: ['show', 'log', 'err', 'traceFile'],
+      level: 'ALL',
       enableCallStack: true
     }
   }
