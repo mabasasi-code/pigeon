@@ -57,8 +57,12 @@ log4js.configure({
   appenders: {
     out: { type: 'stdout', layout: { type: 'origin', addColor: true } },
     logFile: {
-      type: 'file',
+      type: 'dateFile',
       filename: path.join(LOG_DIRECTORY, 'app.log'),
+      pattern: 'yyyy-MM-dd',
+      daysToKeep: 5,
+      alwaysIncludePattern: true,
+      keepFileExt: true,
       layout: { type: 'origin', addColor: false }
     },
     errFile: {
