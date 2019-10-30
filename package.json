@@ -7,10 +7,10 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon --exec 'babel-node --require node_modules/dotenv/config server/index.js' --watch server",
     "build": "nuxt build",
-    "start": "cross-env NODE_ENV=production 'babel-node --require node_modules/dotenv/config server/index.js'",
+    "start": "cross-env NODE_ENV=production babel-node --require node_modules/dotenv/config server/index.js",
     "generate": "nuxt generate",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
-    "batch": "cross-env NODE_ENV=cli 'babel-node --require node_modules/dotenv/config ./src/cli.js'"
+    "batch": "cross-env NODE_ENV=cli babel-node --require node_modules/dotenv/config ./src/cli.js"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.3.6",
