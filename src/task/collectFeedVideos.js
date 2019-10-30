@@ -4,7 +4,7 @@ import feedParser from 'feedparser-promised'
 import { batch as logger } from '../../logger'
 import throwIf from '../lib/throwIf'
 import arrayToMap from '../lib/arrayToMap'
-import YoutubePaginator from '../lib/YoutubePaginator'
+import YoutubePaginator from '../lib/youtubePaginator'
 import ItemSequencer from '../lib/itemSequencer'
 
 import { Video } from '../../models'

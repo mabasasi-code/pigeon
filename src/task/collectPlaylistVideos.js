@@ -3,7 +3,7 @@ import { get } from 'object-path'
 import { batch as logger } from '../../logger'
 import throwIf from '../lib/throwIf'
 import arrayToMap from '../lib/arrayToMap'
-import YoutubePaginator from '../lib/YoutubePaginator'
+import YoutubePaginator from '../lib/youtubePaginator'
 import ItemSequencer from '../lib/itemSequencer'
 
 export default async (api, playlistId, options = { getAll: false }) => {
