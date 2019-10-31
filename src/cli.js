@@ -21,8 +21,8 @@ import {
 // 簡易 wrapper
 const wrap = async (callback) => {
   try {
-    await database()
-    await callback()
+    const conn = await database()
+    await callback(conn)
     process.exit(0)
   } catch (err) {
     logger.error(err)
@@ -77,8 +77,6 @@ cli
 
     // TODO: IDの存在可否をチェックしていません
     await wrap(async () => {
-      await database()
-
       const q = Channel.find()
       q.in('channel_id', items)
       const channels = await q.exec()
@@ -143,11 +141,10 @@ cli
   .action(async (options) => {
     const yes = options.yes // 許可
 
-    await wrap(async () => {
+    await wrap(async (conn) => {
       throwIf(!yes, new Error('--yes option required.'))
 
       logger.info('RUN', '-', 'Reset all data.')
-      const conn = await database()
       const res = await conn.connection.db.dropDatabase()
       logger.info(res)
     })
