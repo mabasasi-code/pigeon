@@ -92,14 +92,16 @@ cli
 cli
   .command('feed [...channel IDs]', 'Add or Update videos from feed.')
   .option('-s, --skip', 'Skip when exist.')
+  .option('-d [time], --delay [time]', 'Delay milliseconds.')
   // .option('-f, --force', 'Force Update.')
   .action(async (items, options) => {
     const skipExist = options.skip // 存在する時スキップする (前処理)
     // const doChain = options.force // 未実装
+    const delayTime = options.time
 
     await wrap(async () => {
       // Job に転送
-      await feedVideoUpdate(api, items, { skipExist })
+      await feedVideoUpdate(api, items, { skipExist, delayTime })
     })
   })
 

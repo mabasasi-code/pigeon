@@ -1,5 +1,6 @@
 import { get } from 'object-path'
 import feedParser from 'feedparser-promised'
+import delay from 'delay'
 
 import { batch as logger } from '../../logger'
 import throwIf from '../lib/throwIf'
@@ -9,7 +10,10 @@ import ItemSequencer from '../lib/itemSequencer'
 
 import { Video } from '../../models'
 
-export default async (channelIDs, options = { skipExist: false }) => {
+export default async (
+  channelIDs,
+  options = { skipExist: false, delayTime: 0 }
+) => {
   // もし id配列が空なら例外
   throwIf(!Array.isArray(channelIDs), new Error('Parameter error of IDs.'))
 
@@ -61,6 +65,10 @@ export default async (channelIDs, options = { skipExist: false }) => {
     // 逐次処理プロセス
     const res = await process(map, options)
     seq.merge(res)
+
+    if (options.delayTime > 0) {
+      await delay(options.delayTime)
+    }
   } while (paginator.hasNext())
 
   // 結果表示
