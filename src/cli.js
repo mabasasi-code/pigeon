@@ -21,8 +21,8 @@ import {
 // 簡易 wrapper
 const wrap = async (callback) => {
   try {
-    await database()
-    await callback()
+    const conn = await database()
+    await callback(conn)
     process.exit(0)
   } catch (err) {
     logger.error(err)
@@ -77,8 +77,6 @@ cli
 
     // TODO: IDの存在可否をチェックしていません
     await wrap(async () => {
-      await database()
-
       const q = Channel.find()
       q.in('channel_id', items)
       const channels = await q.exec()
@@ -94,14 +92,16 @@ cli
 cli
   .command('feed [...channel IDs]', 'Add or Update videos from feed.')
   .option('-s, --skip', 'Skip when exist.')
+  .option('-d [time], --delay [time]', 'Delay milliseconds.')
   // .option('-f, --force', 'Force Update.')
   .action(async (items, options) => {
     const skipExist = options.skip // 存在する時スキップする (前処理)
     // const doChain = options.force // 未実装
+    const delayTime = options.time
 
     await wrap(async () => {
       // Job に転送
-      await feedVideoUpdate(api, items, { skipExist })
+      await feedVideoUpdate(api, items, { skipExist, delayTime })
     })
   })
 
@@ -143,11 +143,10 @@ cli
   .action(async (options) => {
     const yes = options.yes // 許可
 
-    await wrap(async () => {
+    await wrap(async (conn) => {
       throwIf(!yes, new Error('--yes option required.'))
 
       logger.info('RUN', '-', 'Reset all data.')
-      const conn = await database()
       const res = await conn.connection.db.dropDatabase()
       logger.info(res)
     })

@@ -16,16 +16,16 @@ router.get(
     const text = req.query.text // 検索文字列
 
     // video
-    const v = Video.find()
-    if (channel) v.in('channel', channel.split(','))
-    if (type) v.in('type', type.split(','))
-    if (status) v.in('status', status.split(','))
+    const q = Video.find().lean()
+    if (channel) q.in('channel', channel.split(','))
+    if (type) q.in('type', type.split(','))
+    if (status) q.in('status', status.split(','))
 
     if (text) {
-      v.or([{ title: { $regex: new RegExp(text, 'i') } }])
+      q.or([{ title: { $regex: new RegExp(text, 'i') } }])
     }
-    v.sort({ [sort]: order })
-    const videos = await Video.paginate(v, { page, limit })
+    q.sort({ [sort]: order })
+    const videos = await Video.paginate(q, { page, limit })
 
     res.status(200).json(simple ? videos.items : videos)
   })
@@ -37,22 +37,22 @@ router.get(
     const id = req.params.id // video_id
 
     // video
-    const v = Video.findOne()
-    v.or([{ _id: id }, { video_id: id }])
-    v.populate('channel')
-    const video = await v.exec()
+    const q = Video.findOne().lean()
+    q.or([{ _id: id }, { video_id: id }])
+    q.populate('channel')
+    const video = await q.exec()
 
     throwIf(!video, new Error('Data not founds.'))
 
     // video-stat (最新10件を降順に)
-    const s = VideoStat.find()
-    s.where('video').equals(video._id)
-    s.sort({ timestamp: -1 })
-    s.limit(10)
-    const stats = await s.exec()
+    const sq = VideoStat.find().lean()
+    sq.where('video').equals(video._id)
+    sq.sort({ timestamp: -1 })
+    sq.limit(10)
+    const stats = await sq.exec()
 
     // return object
-    const json = video.toObject()
+    const json = video
     json.records = stats || []
 
     // records を反転させる(降順 -> 昇順)
@@ -69,10 +69,10 @@ router.get(
     const { sort, order, page, limit, simple } = req.query // 統計系
 
     // video-stat
-    const s = VideoStat.find()
-    s.where('video').equals(id)
-    s.sort({ [sort || 'timestamp']: order || '1' })
-    const stats = await VideoStat.paginate(s, { page, limit })
+    const q = VideoStat.find().lean()
+    q.where('video').equals(id)
+    q.sort({ [sort || 'timestamp']: order || '1' })
+    const stats = await VideoStat.paginate(q, { page, limit })
 
     res.status(200).json(simple ? stats.items : stats)
   })

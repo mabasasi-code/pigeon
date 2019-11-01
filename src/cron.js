@@ -57,7 +57,7 @@ const batch = async (api, date) => {
     // 15分ごとに feed から video を更新する (5, 20, 35, 50)
     if ((minute - 5) % 15 === 0) {
       logger.info('RUN', '-', 'Add videos from feed', '...')
-      await job.feedVideoUpdate(api, [], { skipExist: true })
+      await job.feedVideoUpdate(api, [], { skipExist: true, delayTime: 1000 })
     }
   } catch (err) {
     logger.error(err)

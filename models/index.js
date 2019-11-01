@@ -40,9 +40,7 @@ export const VideoStat = mongoose.model('VideoStat', videoStat)
 
 // singlton
 export default async () => {
-  if (conn) {
-    return
-  }
+  if (conn) return conn
 
   if (!process.env.MONGO_URL) {
     throw new Error('Write MONGO_URL to ".env"')
