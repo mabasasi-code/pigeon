@@ -11,10 +11,10 @@ router.get(
     const { sort, order, page, limit, simple } = req.query // ???
 
     // account
-    const a = Account.find()
-    a.populate('channels')
-    a.sort({ [sort]: order })
-    const accounts = await Account.paginate(a, { page, limit })
+    const q = Account.find().lean()
+    q.populate('channels')
+    q.sort({ [sort]: order })
+    const accounts = await Account.paginate(q, { page, limit })
 
     res.status(200).json(simple ? accounts.items : accounts)
   })
@@ -26,10 +26,10 @@ router.get(
     const id = req.params.id // account_id
 
     // account
-    const a = Account.findOne()
-    a.populate('channels')
-    a.where('_id').equals(id)
-    const account = await a.exec()
+    const q = Account.findOne().lean()
+    q.populate('channels')
+    q.where('_id').equals(id)
+    const account = await q.exec()
 
     res.status(200).json(account)
   })

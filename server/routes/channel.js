@@ -13,13 +13,13 @@ router.get(
     const text = req.query.text // 検索文字列
 
     // channel
-    const c = Channel.find()
+    const q = Channel.find().lean()
     if (text) {
       // 文字列抽出
-      c.or([{ title: { $regex: new RegExp(text, 'i') } }])
+      q.or([{ title: { $regex: new RegExp(text, 'i') } }])
     }
-    c.sort({ [sort]: order })
-    const channels = await Channel.paginate(c, { page, limit })
+    q.sort({ [sort]: order })
+    const channels = await Channel.paginate(q, { page, limit })
 
     res.status(200).json(simple ? channels.items : channels)
   })
@@ -31,21 +31,21 @@ router.get(
     const id = req.params.id // channel_id
 
     // channel
-    const c = Channel.findOne()
-    c.or([{ _id: id }, { channel_id: id }])
-    const channel = await c.exec()
+    const q = Channel.findOne().lean()
+    q.or([{ _id: id }, { channel_id: id }])
+    const channel = await q.exec()
 
     throwIf(!channel, new Error('Data not founds.'))
 
     // channel-stat (最新10件を降順に)
-    const s = ChannelStat.find()
-    s.where('channel').equals(channel._id)
-    s.sort({ timestamp: -1 })
-    s.limit(10)
-    const stats = await s.exec()
+    const sq = ChannelStat.find().lean()
+    sq.where('channel').equals(channel._id)
+    sq.sort({ timestamp: -1 })
+    sq.limit(10)
+    const stats = await sq.exec()
 
     // return object
-    const json = channel.toObject()
+    const json = channel
     json.records = stats || []
 
     // records を反転させる(降順 -> 昇順)
