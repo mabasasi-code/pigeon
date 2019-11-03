@@ -2,35 +2,44 @@
   v-hover(v-slot:default='{ hover }' v-resize='onResize')
     v-card.mx-auto(
       :class="{ 'fill-height': isCollapse }"
-      :elevation="hover ? 12 : 2"
-      :to="{ name: 'video-id', params: { id: video._id }}"
+      :elevation="Boolean(to || href) && hover ? 12 : 2"
+      :to='to'
+      :href='href'
+      v-resize='onResize'
       ref='card'
     )
       v-row(no-gutters)
         v-col(v-bind='imageCols')
-          v-row.black(no-gutters :class="{ 'fill-height': !isCollapse }" align='center' justify='center')
-            v-img(:src='video.image' :aspect-ratio='imageAspectRecio' :width='imageWidth' :max-width='imageWidth')
+          v-card(@click.stop.self hover flat :href='video.url')
+            v-row.black(no-gutters :class="{ 'fill-height': !isCollapse }" align='center' justify='center')
+              v-img(:src='video.image' :aspect-ratio='imageAspectRecio' :width='imageWidth' :max-width='imageWidth')
 
-        v-col.my-2(v-bind='contentCols')
-          div
-            v-chip.mx-2(label small v-bind='tagBindObjects(video.status)') {{ video.status | localeStatus }}
-            v-chip.mx-2(label small v-bind='tagBindObjects(video.type)') {{ video.type | localeType }}
-        
-          div.ma-2.title.text--primary {{ video.title }}
+        v-col.ma-2(v-bind='contentCols')
+          v-row(no-gutters)
+            v-col.mb-2(cols=12)
+              v-chip.mr-3(label small v-bind='tagBindObjects(video.status)') {{ video.status | localeStatus }}
+              v-chip.mr-3(label small v-bind='tagBindObjects(video.type)') {{ video.type | localeType }}
 
-          v-row.mx-2.align-end(v-if='video.stats')
-            //- second がない場合は start と現在時刻を対比させる
-            v-col.mx-1.pa-0.one-line
-              v-icon mdi-movie
-              span.ml-1.body-2(v-if='video.second')  {{ video.second | durationFormat }}
-              span.ml-1.body-2(v-else)  {{ video.start_time | timeToNow }}
+            v-col(cols=12).title.text--primary {{ video.title }}
 
-            v-col.mx-1.pa-0.one-line
-              v-icon mdi-play
-              span.ml-1.body-2 {{ video.stats.now.view | numberFormat }}
-            v-col.mx-1.pa-0.one-line
-              v-icon mdi-account-group
-              span.ml-1.body-2 {{ video.stats.now.current | numberFormat }}
+            v-col(cols=12)
+              Media(:image='channel.image' :text='channel.title'
+                :to="{ name: 'account-id', params: { id: channel.account }}")
+
+            v-col(cols=12 v-if='video.stats')
+              v-row(no-gutters)
+                //- second がない場合は start と現在時刻を対比させる
+                v-col.mx-1.pa-0.one-line
+                  v-icon mdi-movie
+                  span.ml-1.body-2(v-if='video.second')  {{ video.second | durationFormat }}
+                  span.ml-1.body-2(v-else)  {{ video.start_time | timeToNow }}
+
+                v-col.mx-1.pa-0.one-line
+                  v-icon mdi-play
+                  span.ml-1.body-2 {{ video.stats.now.view | numberFormat }}
+                v-col.mx-1.pa-0.one-line
+                  v-icon mdi-account-group
+                  span.ml-1.body-2 {{ video.stats.now.current | numberFormat }}
             //- v-col
             //-   v-icon mdi-thumb-up
             //-   span {{ video.stats.now.like | numberFormat }}
@@ -50,7 +59,13 @@
 import moment from 'moment'
 import stringFilters from '~/mixins/stringFilters'
 
+import Media from '~/components/parts/media'
+
 export default {
+  components: {
+    Media
+  },
+
   filters: {
     localeStatus(val) {
       switch (val) {
@@ -100,6 +115,14 @@ export default {
     imageAspectRecio: {
       type: Number,
       default: () => 16 / 9
+    },
+    to: {
+      type: [String, Object],
+      default: undefined
+    },
+    href: {
+      type: [String, Object],
+      default: undefined
     }
   },
 
@@ -111,6 +134,10 @@ export default {
   },
 
   computed: {
+    channel() {
+      return this.video.channel || {}
+    },
+
     isCollapse() {
       // true で縦長表示
       return this.width < this.breakPoint
