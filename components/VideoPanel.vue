@@ -2,17 +2,25 @@
   v-hover(v-slot:default='{ hover }' v-resize='onResize')
     v-card.mx-auto(
       :class="{ 'fill-height': isCollapse }"
-      :elevation="Boolean(to || href) && hover ? 12 : 2"
+      :elevation='hasLink && hover ? 12 : 2'
       :to='to'
       :href='href'
+      :target='target'
       v-resize='onResize'
       ref='card'
     )
       v-row(no-gutters)
         v-col(v-bind='imageCols')
-          v-card(@click.stop.self hover flat :href='video.url')
+          v-hover(v-slot:default='{ hover: inHover }')
             v-row.black(no-gutters :class="{ 'fill-height': !isCollapse }" align='center' justify='center')
-              v-img(:src='video.image' :aspect-ratio='imageAspectRecio' :width='imageWidth' :max-width='imageWidth')
+              v-card(
+                @click.stop.self
+                :elevation='inHover ? 12 : 0'
+                :href='video.url'
+                target='_blank'
+                tile
+              )
+                v-img(:src='video.image' :aspect-ratio='imageAspectRecio' :width='imageWidth' :max-width='imageWidth')
 
         v-col.ma-2(v-bind='contentCols')
           v-row(no-gutters)
@@ -57,6 +65,7 @@
 
 <script>
 import moment from 'moment'
+import linkable from '~/mixins/linkable'
 import stringFilters from '~/mixins/stringFilters'
 
 import Media from '~/components/parts/media'
@@ -97,7 +106,7 @@ export default {
     }
   },
 
-  mixins: [stringFilters],
+  mixins: [linkable, stringFilters],
 
   props: {
     video: {
@@ -115,14 +124,6 @@ export default {
     imageAspectRecio: {
       type: Number,
       default: () => 16 / 9
-    },
-    to: {
-      type: [String, Object],
-      default: undefined
-    },
-    href: {
-      type: [String, Object],
-      default: undefined
     }
   },
 

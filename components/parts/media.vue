@@ -2,9 +2,10 @@
   v-hover(v-slot:default='{ hover }')
     v-card(
       @click.stop.self
-      :elevation="Boolean(to || href) && hover ? 12 : 0"
+      :elevation='hasLink && hover ? 12 : 0'
       :to='to'
       :href='href'
+      :target='target'
     )
       v-list-item
         v-list-item-avatar
@@ -15,7 +16,11 @@
 </template>
 
 <script>
+import linkable from '~/mixins/linkable'
+
 export default {
+  mixins: [linkable],
+
   props: {
     image: {
       type: String,
@@ -24,14 +29,6 @@ export default {
     text: {
       type: String,
       default: () => ''
-    },
-    to: {
-      type: [String, Object],
-      default: undefined
-    },
-    href: {
-      type: [String, Object],
-      default: undefined
     }
   }
 }

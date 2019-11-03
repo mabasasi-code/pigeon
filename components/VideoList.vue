@@ -2,8 +2,12 @@
   v-row(no-gutters)
     template(v-for='(video, key) in videos' :keys='key')
       v-col.ma-2(:cols='showGrid ? 0 : 12')
-        VideoPanel(ref='card' :video='video' :imageWidth='imageWidth'
-          :to="{ name: 'video-id', params: { id: video._id }}")
+        VideoPanel(
+          :video='video'
+          :imageWidth='imageWidth'
+          :to="{ name: 'video-id', params: { id: video._id }}"
+          ref='card'
+        )
 
 </template>
 
