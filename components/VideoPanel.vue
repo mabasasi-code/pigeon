@@ -68,7 +68,7 @@ import moment from 'moment'
 import linkable from '~/mixins/linkable'
 import stringFilters from '~/mixins/stringFilters'
 
-import Media from '~/components/parts/media'
+import Media from '~/components/parts/Media'
 
 export default {
   components: {
@@ -191,7 +191,7 @@ export default {
         case 'archive':
           return { color: 'green', textColor: 'white' }
         case 'video':
-          return { color: 'blue', textColor: 'white' }
+          return { color: 'indigo', textColor: 'white' }
       }
     },
 
