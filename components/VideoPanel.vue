@@ -1,121 +1,83 @@
 <template lang="pug">
   v-hover(v-slot:default='{ hover }' v-resize='onResize')
     v-card.mx-auto(
-      :class="{ 'fill-height': isCollapse }"
       :elevation='hasLink && hover ? 12 : 2'
-      :to='to'
-      :href='href'
-      :target='target'
+      v-bind='linkObject'
       v-resize='onResize'
       ref='card'
     )
-      v-row(no-gutters)
-        v-col(v-bind='imageCols')
-          v-hover(v-slot:default='{ hover: inHover }')
-            v-row.black(no-gutters :class="{ 'fill-height': !isCollapse }" align='center' justify='center')
-              v-card(
-                @click.stop.self
-                :elevation='inHover ? 12 : 0'
-                :href='video.url'
-                target='_blank'
-                tile
-              )
-                v-img(:src='video.image' :aspect-ratio='imageAspectRecio' :width='imageWidth' :max-width='imageWidth')
+      v-row.fill-height(no-gutters :class="{ 'flex-column': isCollapse }")
+        //- left header
+        v-col.flex-grow-0
+          div.black.bottom-flat
+            v-hover(v-slot:default='{ hover: inHover }')
+              LinkedCard.botton-flat.black(:href='video.url' target='_blank')
+                v-row.fill-height(no-gutters :class="{ 'flex-column': isCollapse }" align='center' justify='center')
+                  v-img(:src='video.image' :aspect-ratio='imageAspectRecio' :width='imageWidth')
 
-        v-col.ma-2(v-bind='contentCols')
-          v-row(no-gutters)
-            v-col.mb-2(cols=12)
-              v-chip.mr-3(label small v-bind='tagBindObjects(video.status)') {{ video.status | localeStatus }}
-              v-chip.mr-3(label small v-bind='tagBindObjects(video.type)') {{ video.type | localeType }}
+        //- right content
+        v-col.pa-2.flex-grow-1
+          v-row.fill-height.flex-column(no-gutters)
 
-            v-col(cols=12).title.text--primary {{ video.title }}
+            //- chips
+            v-col.pb-1.flex-grow-0
+              template(v-for='(chip, key) in chips' :keys='key')
+                v-chip.mr-3(label small :color='chip.color' :text-color='chip.textColor') {{ chip.text }}
 
-            v-col(cols=12)
-              Media(:image='channel.image' :text='channel.title'
-                :to="{ name: 'account-id', params: { id: channel.account }}")
+            //- title
+            v-col.flex-grow-1
+              span.title.text--primary {{ video.title }}
 
-            v-col(cols=12 v-if='video.stats')
+            v-col.py-1.flex-grow-0
+             v-divider
+
+            //- labels
+            v-col.flex-grow-0
               v-row(no-gutters)
-                //- second がない場合は start と現在時刻を対比させる
-                v-col.mx-1.pa-0.one-line
-                  v-icon mdi-movie
-                  span.ml-1.body-2(v-if='video.second')  {{ video.second | durationFormat }}
-                  span.ml-1.body-2(v-else)  {{ video.start_time | timeToNow }}
+                template(v-for='(label, key) in labels' :keys='key')
+                  v-col.px-2.one-line(cols='auto')
+                    div(style='min-width: 60px;')
+                      v-icon {{ label.icon }}
+                      span.ml-1.body-2 {{ label.text }}
 
-                v-col.mx-1.pa-0.one-line
-                  v-icon mdi-play
-                  span.ml-1.body-2 {{ video.stats.now.view | numberFormat }}
-                v-col.mx-1.pa-0.one-line
-                  v-icon mdi-account-group
-                  span.ml-1.body-2 {{ video.stats.now.current | numberFormat }}
-            //- v-col
-            //-   v-icon mdi-thumb-up
-            //-   span {{ video.stats.now.like | numberFormat }}
-            //- v-col
-            //-   v-icon mdi-thumb-down
-            //-   span {{ video.stats.now.bad | numberFormat }}
-            //- v-col
-            //-   v-icon mdi-star
-            //-   span {{ video.stats.now.fav | numberFormat }}
-            //- v-col
-            //-   v-icon mdi-message-reply
-            //-   span {{ video.stats.now.comment | numberFormat }}
+        //- channel media
+        v-col.flex-grow-0
+          Media.top-flat.orange.lighten-4(
+            :image='channel.image'
+            :text='channel.title'
+            :to="{ name: 'account-id', params: { id: channel.account }}"
+          )
 
 </template>
 
 <script>
 import moment from 'moment'
+import { get } from 'object-path'
 import linkable from '~/mixins/linkable'
+import responsible from '~/mixins/responsible'
 import stringFilters from '~/mixins/stringFilters'
 
 import Media from '~/components/parts/Media'
+import LinkedCard from '~/components/parts/LinkedCard'
 
 export default {
   components: {
-    Media
+    Media,
+    LinkedCard
   },
 
   filters: {
-    localeStatus(val) {
-      switch (val) {
-        case 'public':
-          return '公開'
-        case 'unlisted':
-          return '限定公開'
-        case 'delete':
-          return '非公開'
-        default:
-          return val
-      }
-    },
-    localeType(val) {
-      switch (val) {
-        case 'upcoming':
-          return '予定'
-        case 'live':
-          return '配信中'
-        case 'archive':
-          return 'アーカイブ'
-        case 'video':
-          return '動画'
-      }
-    },
-
     timeToNow(val) {
       return moment(val).fromNow()
     }
   },
 
-  mixins: [linkable, stringFilters],
+  mixins: [linkable, responsible, stringFilters],
 
   props: {
     video: {
       type: Object,
       default: () => {}
-    },
-    breakPoint: {
-      type: Number,
-      default: () => 640
     },
     imageWidth: {
       type: Number,
@@ -139,34 +101,29 @@ export default {
       return this.video.channel || {}
     },
 
-    isCollapse() {
-      // true で縦長表示
-      return this.width < this.breakPoint
+    chips() {
+      const video = this.video
+      const ary = []
+      ary.push(this.parseChips(video.status))
+      ary.push(this.parseChips(video.type))
+      ary.push(this.parseChips('test'))
+      return ary
     },
 
-    imageCols() {
-      // - v-col.flex-grow-0.flex-xs-grow-1.flex-shrink-0(cols='12' sm='auto')
-      if (this.isCollapse) {
-        // 縦長表示
-        return { cols: '12', class: ['flex-grow-1', 'flex-shrink-0'] }
-      } else {
-        // 横長表示
-        return { cols: 'auto', class: ['flex-grow-0', 'flex-shrink-0'] }
+    labels() {
+      const video = this.video
+      const stats = get(this.video, 'stats.now') || {}
+      const ary = []
+      ary.push({ icon: 'mdi-movie', text: this.formatDuration(video.second) })
+      ary.push({ icon: 'mdi-play', text: this.formatNumber(stats.view) })
+      ary.push({ icon: 'mdi-account-group', text: this.formatNumber(stats.current) }) // prettier-ignore
+      if (!this.isCollapse) {
+        ary.push({ icon: 'mdi-thumb-up', text: this.formatNumber(stats.like) })
+        ary.push({ icon: 'mdi-thumb-down', text: this.formatNumber(stats.bad) })
+        ary.push({ icon: 'mdi-message-reply', text: this.formatNumber(stats.comment) }) // prettier-ignore
       }
-    },
-    contentCols() {
-      // - v-col.flex-grow-1.flex-shrink-1(cols='12' sm='1' style='max-width: 100%;')
-      if (this.isCollapse) {
-        // 縦長表示
-        return { cols: 'auto', class: ['flex-grow-1', 'flex-shrink-1'] }
-      } else {
-        // 横長表示
-        return {
-          cols: '1',
-          class: ['flex-grow-1', 'flex-shrink-1'],
-          style: { 'max-width': '100%' }
-        }
-      }
+      ary.push({ icon: 'mdi-clock-outline', text: this.formatDatetimeHumanize(video.start_time) }) // prettier-ignore
+      return ary
     }
   },
 
@@ -175,41 +132,26 @@ export default {
   },
 
   methods: {
-    tagBindObjects(val) {
+    parseChips(val) {
       switch (val) {
         case 'public':
-          return { color: 'blue', textColor: 'white' }
+          return { color: 'blue', textColor: 'white', text: '公開' }
         case 'unlisted':
-          return { color: 'red', textColor: 'white' }
+          return { color: 'red', textColor: 'white', text: '限定公開' }
         case 'delete':
-          return { color: 'black', textColor: 'white' }
+          return { color: 'black', textColor: 'white', text: '非公開' }
 
         case 'upcoming':
-          return { color: 'orange', textColor: 'white' }
+          return { color: 'orange', textColor: 'white', text: '予定' }
         case 'live':
-          return { color: 'red', textColor: 'white' }
+          return { color: 'red', textColor: 'white', text: '配信中' }
         case 'archive':
-          return { color: 'green', textColor: 'white' }
+          return { color: 'green', textColor: 'white', text: 'アーカイブ' }
         case 'video':
-          return { color: 'indigo', textColor: 'white' }
+          return { color: 'indigo', textColor: 'white', text: '動画' }
+        default:
+          return { color: 'grey lighten-3', textColor: 'black', text: val }
       }
-    },
-
-    resetOnResize() {
-      // 外部から実行する際はリセットを噛ます
-      this.width = 0
-      this.height = 0
-
-      this.$nextTick(() => {
-        this.onResize()
-      })
-    },
-
-    onResize() {
-      // 自身のサイズを指定
-      const dom = this.$el
-      this.width = parseInt(dom.clientWidth)
-      // this.height = parseInt(dom.height)
     }
   }
 }

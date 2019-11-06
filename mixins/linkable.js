@@ -15,6 +15,13 @@ export default {
   },
 
   computed: {
+    linkObject() {
+      return {
+        to: this.to,
+        href: this.href,
+        target: this.target
+      }
+    },
     hasLink() {
       return Boolean(this.to || this.href)
     }

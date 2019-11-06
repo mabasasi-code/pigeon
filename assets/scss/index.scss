@@ -13,3 +13,12 @@
 .v-btn-toggle.custom .v-btn.v-item--active i {
   color: white !important;
 }
+
+// ボーダーの丸み上下
+// TODO: 4px を vuetify の変数に置き換えたい
+.top-flat {
+  border-radius: 0px 0px 4px 4px !important;
+}
+.bottom-flat {
+  border-radius: 4px 4px 0px 0px !important;
+}

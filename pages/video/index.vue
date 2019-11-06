@@ -6,7 +6,7 @@
     //- header
     v-row.mx-2(no-gutters align='center' justify='center')
       v-col(cols='auto')
-        span.body-2.grey--text.text--darken-1 {{ totalItems | numberFormat }}件 {{ requestTime / 1000 | numberFixed(2) }}秒
+        span.body-2.grey--text.text--darken-1 {{ totalItems | formatNumber }}件 {{ requestTime / 1000 | formatNumber(2) }}秒
 
       v-spacer
 
@@ -21,6 +21,7 @@
           v-btn(elevation='2')
             v-icon(small) mdi-view-list
 
+    //- main
     VideoList(:videos='videos' :showGrid='listMode === 0' :imageWidth='320')
 
     //- footer

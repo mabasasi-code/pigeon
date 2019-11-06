@@ -3,7 +3,7 @@
     v-subheader
       v-row(no-gutters)
         v-col(cols='auto')
-          span {{ timestamp | datetimeFormat }} 
+          span {{ timestamp | formatDatetime }} 
 
         v-spacer
         v-col(cols='auto')

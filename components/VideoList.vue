@@ -1,8 +1,8 @@
 <template lang="pug">
-  v-row(no-gutters)
+  v-row.fill-height(no-gutters)
     template(v-for='(video, key) in videos' :keys='key')
       v-col.ma-2(:cols='showGrid ? 0 : 12')
-        VideoPanel(
+        VideoPanel.fill-height(
           :video='video'
           :imageWidth='imageWidth'
           :to="{ name: 'video-id', params: { id: video._id }}"
