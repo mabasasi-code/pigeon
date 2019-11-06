@@ -13,13 +13,13 @@
             th.text-left 同時接続数
         tbody
           tr(v-for='(stat, key) of (stats)' :keys='key')
-            td {{ stat.timestamp | datetimeFormat }}
-            td {{ stat.view | numberFormat }}
-            td {{ stat.like | numberFormat }}
-            td {{ stat.bad | numberFormat }}
-            td {{ stat.fav | numberFormat }}
-            td {{ stat.comment | numberFormat }}
-            td {{ stat.current | numberFormat }}
+            td {{ stat.timestamp | formatDatetime }}
+            td {{ stat.view | formatNumber }}
+            td {{ stat.like | formatNumber }}
+            td {{ stat.bad | formatNumber }}
+            td {{ stat.fav | formatNumber }}
+            td {{ stat.comment | formatNumber }}
+            td {{ stat.current | formatNumber }}
 
     v-btn(small block @click='onAllRecord') 全て表示
 

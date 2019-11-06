@@ -17,38 +17,38 @@
           td {{ video.type | localeType }}
         tr
           td 開始時刻
-          td {{ video.start_time | datetimeFormat }}
+          td {{ video.start_time | formatDatetime }}
         tr
           td 終了時刻
-          td {{ video.end_time | datetimeFormat }}
+          td {{ video.end_time | formatDatetime }}
         tr
           td 長さ
-          td {{ video.second | durationFormat }}
+          td {{ video.second | formatDuration }}
         tr
           td URL
           td {{ video.url }}
         template(v-if='video.time')
           tr
             td 配信開始時刻
-            td {{ video.time.actual_start_time | datetimeFormat }}
+            td {{ video.time.actual_start_time | formatDatetime }}
           tr
             td 配信終了時刻
-            td {{ video.time.actual_end_time | datetimeFormat }}
+            td {{ video.time.actual_end_time | formatDatetime }}
           tr
             td 予定開始時刻
-            td {{ video.time.scheduled_start_time | datetimeFormat }}
+            td {{ video.time.scheduled_start_time | formatDatetime }}
           tr
             td 予定終了時刻
-            td {{ video.time.scheduled_end_time | datetimeFormat }}
+            td {{ video.time.scheduled_end_time | formatDatetime }}
         tr
           td 公開日時
-          td {{ video.published_at | datetimeFormat }}
+          td {{ video.published_at | formatDatetime }}
         tr
           td 作成日時
-          td {{ video.created_at | datetimeFormat }} ({{ video.created_at | datetimeHumanize }})
+          td {{ video.created_at | formatDatetimeHumanize }}
         tr
           td 最終更新日時
-          td {{ video.updated_at | datetimeFormat }} ({{ video.updated_at | datetimeHumanize }})
+          td {{ video.updated_at | formatDatetimeHumanize }}
         tr
           td 管理キー
           td {{ video._id }}

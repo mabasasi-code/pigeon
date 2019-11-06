@@ -13,16 +13,16 @@
           v-row(no-gutters)
             v-col
               v-icon mdi-account
-              span {{ channel.stats.now.subscriber | numberFormat }}
+              span {{ channel.stats.now.subscriber | formatNumber }}
             v-col
               v-icon mdi-filmstrip
-              span {{ channel.stats.now.video | numberFormat }}
+              span {{ channel.stats.now.video | formatNumber }}
             v-col
               v-icon mdi-play
-              span {{ channel.stats.now.view | numberFormat }}
+              span {{ channel.stats.now.view | formatNumber }}
             v-col
               v-icon mdi-comment
-              span {{ channel.stats.now.comment | numberFormat}}
+              span {{ channel.stats.now.comment | formatNumber }}
 </template>
 
 <script>
