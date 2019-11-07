@@ -22,3 +22,14 @@
 .bottom-flat {
   border-radius: 4px 4px 0px 0px !important;
 }
+.right-flat {
+  border-radius: 4px 0px 0px 4px !important;
+}
+.left-flat {
+  border-radius: 0px 4px 4px 0px !important;
+}
+
+// z-index
+.foreground {
+  z-index: 1000; // とりあえず
+}
