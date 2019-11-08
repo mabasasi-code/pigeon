@@ -31,5 +31,5 @@
 
 // z-index
 .foreground {
-  z-index: 1000; // とりあえず
+  z-index: 4; // とりあえず (vuetify の overlay は default 5)
 }
