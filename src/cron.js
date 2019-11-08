@@ -11,7 +11,7 @@ export default async () => {
   await database()
 
   // test usage
-  // await batch(api, moment('2019-10-29 00:05'))
+  // await batch(api, moment('2019-10-29 10:00'))
   // process.exit(0)
 
   schedule.scheduleJob('*/5 * * * *', async function(fireDate) {
@@ -33,7 +33,7 @@ const batch = async (api, date) => {
 
     const { hour, minute } = { hour: date.hours(), minute: date.minutes() }
 
-    if (hour === 10) {
+    if (hour === 10 && minute === 0) {
       // 毎日10時に channel データの更新をする
       logger.info('RUN', '-', 'Update all channels', '...')
       await job.channelUpdate(api)
