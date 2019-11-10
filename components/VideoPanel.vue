@@ -1,6 +1,6 @@
 <template lang="pug">
   v-hover(v-slot:default='{ hover }' v-resize='onResize')
-    v-card.mx-auto(
+    v-card(
       :elevation='hasLink && hover ? 12 : 2'
       v-bind='linkObject'
       v-resize='onResize'
@@ -86,7 +86,7 @@ export default {
       default: () => {}
     },
     imageWidth: {
-      type: Number,
+      type: [String, Number],
       default: () => 320
     },
     imageAspectRecio: {
@@ -131,7 +131,7 @@ export default {
       ary.push({ icon: 'mdi-movie', text: this.formatDuration(video.second) })
       ary.push({ icon: 'mdi-play', text: this.formatNumber(stats.view) })
       ary.push({ icon: 'mdi-account-group', text: this.formatNumber(stats.current) }) // prettier-ignore
-      ary.push({ icon: 'mdi-thumbs-up-down', text: this.formatNumber(gbRate) + '%' }) // prettier-ignore
+      ary.push({ icon: 'mdi-trending-up', text: this.formatNumber(gbRate) + '%' }) // prettier-ignore
       if (!this.isCollapse) {
         ary.push({ icon: 'mdi-thumb-up', text: this.formatNumber(stats.like) })
         ary.push({ icon: 'mdi-thumb-down', text: this.formatNumber(stats.bad) })

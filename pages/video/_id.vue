@@ -1,35 +1,34 @@
 <template lang="pug">
   div
-    VideoPanel(:video='video')
+    VideoPanel(:video='video' imageWidth='285')
 
     v-row
       v-col
-        v-card
-          v-card-text
-            div info
-            DetailPanel(:video='video')
+        TextPanel(:video='video')
+
       v-col
-        v-card
-          v-card-text
-            div record
+        v-row.flex-column(no-gutters)
+          v-col.mb-4
+            DetailPanel(:video='video')
+
+          v-col
             RecordPanel(:video='video')
 
-      //- v-col
-      //-   v-card
-      //-     v-card-text
-      //-       div description
-      //-       p.text--primary.mt-2(style='white-space: pre') {{ video.text }}
-      
-    code {{ video }}
+    //- code {{ video }}
 </template>
 
 <script>
-import VideoPanel from '~/components/VideoPanel.vue'
-import DetailPanel from '~/components/video/detail-panel.vue'
-import RecordPanel from '~/components/video/record-panel.vue'
+import stringFilters from '~/mixins/stringFilters'
+
+import VideoPanel from '~/components/VideoPanel'
+import DetailPanel from '~/components/video/DetailPanel'
+import RecordPanel from '~/components/video/RecordPanel'
+import TextPanel from '~/components/video/TextPanel'
 
 export default {
-  components: { VideoPanel, DetailPanel, RecordPanel },
+  components: { VideoPanel, DetailPanel, RecordPanel, TextPanel },
+
+  mixins: [stringFilters],
 
   data() {
     return {
