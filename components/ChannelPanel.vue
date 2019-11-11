@@ -21,13 +21,13 @@
               v-row.mx-2.align-end(v-if='channel.stats')
                 v-col.mx-1.pa-0.one-line
                   v-icon mdi-account
-                  span.ml-1.body-2 {{ channel.stats.now.subscriber | numberFormat }}
+                  span.ml-1.body-2 {{ channel.stats.now.subscriber | formatNumber }}
                 v-col.mx-1.pa-0.one-line
                   v-icon mdi-play
-                  span.ml-1.body-2 {{ channel.stats.now.view | numberFormat }}
+                  span.ml-1.body-2 {{ channel.stats.now.view | formatNumber }}
                 v-col.mx-1.pa-0.one-line
                   v-icon mdi-filmstrip
-                  span.ml-1.body-2 {{ channel.stats.now.video | numberFormat }}
+                  span.ml-1.body-2 {{ channel.stats.now.video | formatNumber }}
                 //- v-col.mx-1.pa-0.one-line
                 //-   v-icon mdi-comment
                 //-   span.ml-1.body-2 {{ channel.stats.now.comment | numberFormat }}

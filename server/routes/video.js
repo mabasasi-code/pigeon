@@ -25,7 +25,8 @@ router.get(
       q.or([{ title: { $regex: new RegExp(text, 'i') } }])
     }
     q.sort({ [sort]: order })
-    const videos = await Video.paginate(q, { page, limit })
+    // q.populate('channel')
+    const videos = await Video.paginate(q, { page, limit, populate: 'channel' })
 
     res.status(200).json(simple ? videos.items : videos)
   })

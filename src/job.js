@@ -114,8 +114,7 @@ export const weekVideoUpdate = async function(api, date) {
 
   const vids = await findVideoID({
     end_time: { $gte: limit },
-    start_time: { $lt: date },
-    type: { $in: ['live', 'upcoming'] }
+    start_time: { $lt: date }
   })
   await updateVideo(api, vids, { skipExist: false })
 }

@@ -6,7 +6,7 @@
     v-subheader
       v-row(no-gutters)
         v-col(cols='auto')
-          span {{ totalItems | numberFormat }}件 {{ requestTime / 1000 | numberFixed(2) }}秒
+          span {{ totalItems | formatNumber }}件 {{ requestTime / 1000 | formatNumber(2) }}秒
         v-spacer
         v-col(cols='auto')
           v-btn-toggle(v-model='listMode' mandatory color='primary')
