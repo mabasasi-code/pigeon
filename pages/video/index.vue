@@ -57,12 +57,6 @@ export default {
     }
   },
 
-  watch: {
-    async page() {
-      await this.getDataFromApi()
-    }
-  },
-
   async mounted() {
     await this.getDataFromApi()
   },
