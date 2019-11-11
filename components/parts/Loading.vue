@@ -1,10 +1,10 @@
 <template lang="pug">
-  v-overlay(:value='show' absolute)
+  v-overlay(:value='show')
     div.text-center
       v-progress-circular(
         indeterminate
-        size=70
-        width=7
+        size=100
+        width=10
         color='white'
       )
 
