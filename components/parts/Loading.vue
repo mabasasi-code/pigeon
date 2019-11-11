@@ -1,5 +1,5 @@
 <template lang="pug">
-  v-overlay(:value='show')
+  v-overlay(:value='show' absolute)
     div.text-center
       v-progress-circular(
         indeterminate
