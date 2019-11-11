@@ -27,7 +27,7 @@
     //- footer
     v-row.mx-2(no-gutters align='center' justify='center')
       v-col(cols='auto')
-        v-pagination(v-model='page' :length='totalPages' total-visible='7')
+        v-pagination(v-model='page' :length='totalPages' total-visible='7' @input='onSearch')
 
     Loading(:show='showLoading')
 
