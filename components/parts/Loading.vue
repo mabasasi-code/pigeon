@@ -5,7 +5,7 @@
         indeterminate
         size=70
         width=7
-        color='light-blue'
+        color='white'
       )
 
 </template>

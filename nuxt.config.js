@@ -29,7 +29,11 @@ module.exports = {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: ['~/plugins/axios.js', '~/plugins/vue-scrollto'],
+  plugins: [
+    '~/plugins/axios.js',
+    '~/plugins/vue-scrollto',
+    '~/plugins/vuetify-toast-snackbar'
+  ],
   /*
    ** Nuxt.js dev-modules
    */

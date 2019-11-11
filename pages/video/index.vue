@@ -65,29 +65,35 @@ export default {
     onSearch() {
       this.getDataFromApi()
     },
+
     async getDataFromApi() {
       this.showLoading = true
       const ts = new Date()
 
-      // 全てのビデオを直近のもの順で
-      const { items: videos, paginator } = await this.$axios.$get('/video', {
-        params: {
-          text: this.searchText,
-          limit: 24,
-          page: this.page,
-          sort: 'start_time',
-          order: 'desc'
-        }
-      })
-      this.videos = videos || []
+      try {
+        // 全てのビデオを直近のもの順で
+        const { items: videos, paginator } = await this.$axios.$get('/video', {
+          params: {
+            text: this.searchText,
+            limit: 24,
+            page: this.page,
+            sort: 'start_time',
+            order: 'desc'
+          }
+        })
+        this.videos = videos || []
 
-      // 統計保存
-      this.totalItems = paginator.totalItems
-      this.totalPages = paginator.totalPages
-      this.requestTime = new Date() - ts
+        // 統計保存
+        this.totalItems = paginator.totalItems
+        this.totalPages = paginator.totalPages
+        this.requestTime = new Date() - ts
+
+        this.$scrollTo('#app')
+      } catch (err) {
+        this.$toast.error(err)
+      }
 
       this.showLoading = false
-      this.$scrollTo('#app')
     }
   }
 }
