@@ -1,4 +1,5 @@
 const express = require('express')
+const proxy = require('http-proxy-middleware')
 const consola = require('consola')
 const { Nuxt, Builder } = require('nuxt')
 const app = express()
@@ -29,8 +30,19 @@ async function start() {
   // eslint-disable-next-line no-unused-vars
   const conn = await database()
 
-  // Import API routes
-  app.use('/api', routes)
+  // Import API routes or Proxy
+  if (process.env.USE_PROXY) {
+    const apiProxy = proxy({
+      target: process.env.API_PROXY_URL,
+      pathRewrite: { '^/api': '' },
+      changeOrigin: true,
+      ws: true,
+      logLevel: process.env.CONSOLA_LEVEL
+    })
+    app.use('/api', apiProxy)
+  } else {
+    app.use('/api', routes)
+  }
 
   // Give nuxt middleware to express
   app.use(nuxt.render)

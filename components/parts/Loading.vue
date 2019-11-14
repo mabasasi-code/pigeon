@@ -3,9 +3,9 @@
     div.text-center
       v-progress-circular(
         indeterminate
-        size=70
-        width=7
-        color='light-blue'
+        size=100
+        width=10
+        color='white'
       )
 
 </template>
