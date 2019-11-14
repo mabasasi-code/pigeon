@@ -2,9 +2,7 @@ const colors = require('vuetify/es5/util/colors').default
 
 module.exports = {
   mode: 'universal',
-  /*
-   ** Headers of the page
-   */
+
   head: {
     title: process.env.npm_package_name || '',
     meta: [
@@ -18,53 +16,30 @@ module.exports = {
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
   },
-  /*
-   ** Customize the progress-bar color
-   */
+
   loading: { color: '#fff' },
-  /*
-   ** Global CSS
-   */
+
   css: [{ src: '~/assets/scss/index.scss', lang: 'scss' }],
-  /*
-   ** Plugins to load before mounting the App
-   */
+
   plugins: [
     '~/plugins/axios.js',
     '~/plugins/vue-scrollto',
     '~/plugins/vuetify-toast-snackbar'
   ],
-  /*
-   ** Nuxt.js dev-modules
-   */
-  buildModules: [
-    // Doc: https://github.com/nuxt-community/eslint-module
-    ['@nuxtjs/eslint-module', { fix: true }]
-  ],
-  /*
-   ** Nuxt.js modules
-   */
+
+  buildModules: [['@nuxtjs/eslint-module', { fix: true }]],
+
   modules: [
-    // Doc: https://vuetifyjs.com/ja/getting-started/quick-start
     '@nuxtjs/vuetify',
-    // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
-    // Doc: https://github.com/nuxt-community/moment-module
     ['@nuxtjs/moment', ['ja']],
     '@nuxtjs/pwa'
   ],
-  /*
-   ** Axios module configuration
-   ** See https://axios.nuxtjs.org/options
-   */
+
   axios: {
-    // See https://axios.nuxtjs.org/
-    prefix: '/api'
+    prefix: '/api/'
   },
-  /*
-   ** vuetify module configuration
-   ** https://github.com/nuxt-community/vuetify-module
-   */
+
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
     theme: {
@@ -82,13 +57,8 @@ module.exports = {
       }
     }
   },
-  /*
-   ** Build configuration
-   */
+
   build: {
-    /*
-     ** You can extend webpack config here
-     */
     extend(config, ctx) {}
   }
 }
