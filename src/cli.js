@@ -1,3 +1,4 @@
+import {} from 'dotenv/config'
 import { cac } from 'cac'
 import { forEachSeries } from 'p-iteration'
 

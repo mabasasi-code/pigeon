@@ -11,6 +11,7 @@ const routes = require('./routes')
 
 // Import and Set Nuxt.js options
 config.dev = process.env.NODE_ENV !== 'production'
+consola.level = process.env.CONSOLA_LEVEL
 
 async function start() {
   // Init Nuxt.js
@@ -31,7 +32,7 @@ async function start() {
   const conn = await database()
 
   // Import API routes or Proxy
-  if (process.env.USE_PROXY) {
+  if (process.env.USE_PROXY === 'true') {
     const apiProxy = proxy({
       target: process.env.API_PROXY_URL,
       pathRewrite: { '^/api': '' },

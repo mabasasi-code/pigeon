@@ -1,3 +1,4 @@
+require('dotenv').config()
 const colors = require('vuetify/es5/util/colors').default
 
 module.exports = {
@@ -37,7 +38,8 @@ module.exports = {
   ],
 
   axios: {
-    prefix: '/api/'
+    baseURL: process.env.API_URL,
+    prefix: '/api'
   },
 
   vuetify: {
